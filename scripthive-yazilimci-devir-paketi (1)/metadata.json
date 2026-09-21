@@ -1,0 +1,6 @@
+{
+  "name": "ScriptHive-02",
+  "description": "Profesyonel senaryo yazımı, karakter ve hikaye incili geliştirme, Google Drive yedekleme ve ses girişi destekli, gelişmiş ve kapsamlı senaryo editörü.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

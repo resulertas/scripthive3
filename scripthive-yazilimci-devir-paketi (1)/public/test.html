@@ -1,0 +1,15 @@
+<!DOCTYPE html>
+<html>
+<body>
+  <div id="parent1" style="display: block;">
+    <div style="margin-top: 50px; height: 50px;"></div>
+  </div>
+  <div id="parent2" style="display: flow-root;">
+    <div style="margin-top: 50px; height: 50px;"></div>
+  </div>
+  <script>
+    console.log("parent 1 offsetHeight: ", document.getElementById("parent1").offsetHeight);
+    console.log("parent 2 offsetHeight: ", document.getElementById("parent2").offsetHeight);
+  </script>
+</body>
+</html>
