@@ -27,15 +27,17 @@ jobs:
           node-version: 20
 
       - name: Install dependencies
+        working-directory: './scripthive-yazilimci-devir-paketi (1)'
         run: npm install
 
       - name: Build Project
+        working-directory: './scripthive-yazilimci-devir-paketi (1)'
         run: npm run build
 
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
-          path: ./dist
+          path: './scripthive-yazilimci-devir-paketi (1)/dist'
 
   deploy:
     environment:
