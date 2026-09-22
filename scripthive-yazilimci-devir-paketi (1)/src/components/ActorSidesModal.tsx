@@ -426,9 +426,11 @@ export default function ActorSidesModal({
 
   if (!isOpen) return null;
 
-  const bgModal = theme === 'dark' ? 'bg-[#1c222a] text-slate-100 border-[#2d3640]' : 'bg-[#FFFFF0] text-slate-800 border-[#c8bea8]';
-  const cardBg = theme === 'dark' ? 'bg-[#141920] border-[#252f3d]' : 'bg-white border-[#ded5c5]';
-  const btnHover = theme === 'dark' ? 'hover:bg-slate-700/60 text-slate-300 hover:text-white' : 'hover:bg-[#ebe3d5] text-slate-700 hover:text-black';
+  const bgModal = theme === 'dark' ? 'bg-[#1a1f25] text-slate-100 border-[#2d3640]/70' : 'bg-[#fcfbf8] text-slate-800 border-[#c8bea8]/70';
+  const sidebarBg = theme === 'dark' ? 'bg-[#15191f] border-[#2d3640]/70' : 'bg-[#f4eee4] border-[#c8bea8]/70';
+  const cardBg = theme === 'dark' ? 'bg-[#20272e] border-[#2d3640]/70' : 'bg-white border-[#c8bea8]/70';
+  const headerBg = theme === 'dark' ? 'bg-[#1a1f25] border-[#2d3640]/70' : 'bg-[#e8e0d5] border-[#c8bea8]/70';
+  const inputBg = theme === 'dark' ? 'bg-[#15191f] border-[#2d3640] text-slate-100 focus:border-[#6ba3e8]' : 'bg-white border-[#c8bea8] text-slate-900 focus:border-blue-600';
 
   return (
     <AnimatePresence>
@@ -441,9 +443,9 @@ export default function ActorSidesModal({
           className={`w-full max-w-6xl h-[94vh] rounded-2xl shadow-2xl border flex flex-col overflow-hidden ${bgModal}`}
         >
           {/* HEADER */}
-          <div className={`px-5 py-3.5 border-b flex items-center justify-between shrink-0 ${theme === 'dark' ? 'border-[#2d3640] bg-[#161c24]' : 'border-[#c8bea8] bg-[#e8e0d5]'}`}>
+          <div className={`px-5 py-3.5 border-b flex items-center justify-between shrink-0 ${headerBg}`}>
             <div className="flex items-center gap-3">
-              <div className="p-2 rounded-xl bg-slate-500/10 text-slate-600 dark:text-slate-300 border border-slate-500/20">
+              <div className={`p-2 rounded-xl border ${theme === 'dark' ? 'bg-[#6ba3e8]/15 text-[#6ba3e8] border-[#6ba3e8]/30' : 'bg-blue-600/15 text-blue-700 border-blue-200'}`}>
                 <Clapperboard size={20} />
               </div>
               <div>
@@ -458,7 +460,7 @@ export default function ActorSidesModal({
 
             <button
               onClick={onClose}
-              className={`p-1.5 rounded-xl transition-colors ${theme === 'dark' ? 'hover:bg-slate-700/60 text-slate-400 hover:text-white' : 'hover:bg-[#dfd7ca] text-slate-600 hover:text-black'}`}
+              className={`p-1.5 rounded-xl transition-colors ${theme === 'dark' ? 'hover:bg-[#2d3640] text-slate-400 hover:text-white' : 'hover:bg-[#dfd7ca] text-slate-600 hover:text-black'}`}
               title="Kapat"
             >
               <X size={20} />
@@ -469,10 +471,10 @@ export default function ActorSidesModal({
           <div className="flex-1 flex flex-col md:flex-row overflow-hidden">
             
             {/* LEFT COLUMN: CHARACTER & SCENE PICKER */}
-            <div className={`w-full md:w-80 border-r flex flex-col shrink-0 ${theme === 'dark' ? 'border-[#252f3d] bg-[#141920]' : 'border-[#ded5c5] bg-[#f7f3eb]'}`}>
+            <div className={`w-full md:w-80 border-r flex flex-col shrink-0 ${sidebarBg}`}>
               
               {/* 1. Character Search & List */}
-              <div className="p-3 border-b border-black/10 dark:border-white/10 shrink-0">
+              <div className="p-3 border-b border-inherit shrink-0">
                 <div className="flex items-center justify-between mb-2">
                   <span className="text-xs font-bold opacity-80 uppercase tracking-wider">Karakter Seçin</span>
                   <span className="text-[10px] opacity-60 font-mono">{characterList.length} Karakter</span>
@@ -484,15 +486,13 @@ export default function ActorSidesModal({
                     value={charSearch}
                     onChange={(e) => setCharSearch(e.target.value)}
                     placeholder="Karakter ara..."
-                    className={`w-full pl-8 pr-3 py-1.5 rounded-xl text-xs border outline-none ${
-                      theme === 'dark' ? 'bg-[#10141a] border-slate-700 text-slate-200' : 'bg-white border-[#dcd4c4] text-slate-800'
-                    }`}
+                    className={`w-full pl-8 pr-3 py-1.5 rounded-xl text-xs border outline-none transition-all ${inputBg}`}
                   />
                 </div>
               </div>
 
               {/* Character Badges */}
-              <div className="h-44 overflow-y-auto p-2 space-y-1 border-b border-black/10 dark:border-white/10 shrink-0">
+              <div className="h-44 overflow-y-auto p-2 space-y-1 border-b border-inherit shrink-0 custom-scrollbar">
                 {characterList
                   .filter(c => c.name.toLowerCase().includes(charSearch.toLowerCase()))
                   .map((char) => {
@@ -503,15 +503,15 @@ export default function ActorSidesModal({
                         onClick={() => handleSelectCharacter(char.name)}
                         className={`w-full text-left p-2 rounded-xl flex items-center justify-between text-xs transition-all ${
                           isSelected 
-                            ? `${theme === 'dark' ? 'bg-slate-700 text-white font-bold' : 'bg-[#e0d6c4] text-slate-900 font-bold'}` 
-                            : `${theme === 'dark' ? 'hover:bg-slate-800/80 text-slate-300' : 'hover:bg-[#ebe3d5] text-slate-700'}`
+                            ? `${theme === 'dark' ? 'bg-[#6ba3e8] text-slate-950 font-bold shadow-sm' : 'bg-blue-700 text-white font-bold shadow-sm'}` 
+                            : `${theme === 'dark' ? 'hover:bg-[#20272e] text-slate-300' : 'hover:bg-[#ebe3d5] text-slate-700'}`
                         }`}
                       >
                         <div className="flex items-center gap-2 truncate">
                           <div className={`w-6 h-6 rounded-full flex items-center justify-center font-bold text-[10px] shrink-0 ${
                             isSelected 
-                              ? (theme === 'dark' ? 'bg-white text-slate-900' : 'bg-slate-900 text-white')
-                              : 'bg-slate-500/15 text-slate-600 dark:text-slate-400'
+                              ? (theme === 'dark' ? 'bg-slate-950 text-[#6ba3e8]' : 'bg-white text-blue-700')
+                              : (theme === 'dark' ? 'bg-slate-800 text-slate-300' : 'bg-[#e0d6c4] text-slate-800')
                           }`}>
                             {char.name.charAt(0)}
                           </div>
@@ -528,10 +528,10 @@ export default function ActorSidesModal({
               </div>
 
               {/* 2. Scene Checklist */}
-              <div className="p-3 border-b border-black/10 dark:border-white/10 flex items-center justify-between shrink-0">
+              <div className="p-3 border-b border-inherit flex items-center justify-between shrink-0">
                 <div className="flex items-center gap-1.5">
                   <span className="text-xs font-bold opacity-80 uppercase tracking-wider">Sahneler</span>
-                  <span className="text-[10px] px-1.5 py-0.5 rounded bg-black/10 dark:bg-white/10 font-mono">
+                  <span className="text-[10px] px-1.5 py-0.5 rounded bg-black/5 dark:bg-white/5 font-mono">
                     {selectedSceneIds.size} / {characterScenes.length}
                   </span>
                 </div>
@@ -543,7 +543,7 @@ export default function ActorSidesModal({
               </div>
 
               {/* Scene Checklist Items */}
-              <div className="flex-1 overflow-y-auto p-2 space-y-1">
+              <div className="flex-1 overflow-y-auto p-2 space-y-1 custom-scrollbar">
                 {characterScenes.map((scene) => {
                   const isChecked = selectedSceneIds.has(scene.sceneId);
                   const lines = scene.characterLineCounts[selectedCharacter] || 0;
@@ -553,12 +553,16 @@ export default function ActorSidesModal({
                       onClick={() => toggleScene(scene.sceneId)}
                       className={`p-2 rounded-xl border flex items-center justify-between gap-2 text-xs cursor-pointer transition-all ${
                         isChecked 
-                          ? (theme === 'dark' ? 'bg-slate-800/80 border-slate-600 text-slate-100' : 'bg-[#e4dcce] border-[#c8bea8] text-slate-900')
-                          : 'opacity-50 hover:opacity-100 border-transparent'
+                          ? (theme === 'dark' ? 'bg-[#20272e] border-[#2d3640] text-slate-100 shadow-xs' : 'bg-white border-[#c8bea8] text-slate-900 shadow-xs')
+                          : 'opacity-50 hover:opacity-100 border-transparent hover:bg-black/5 dark:hover:bg-white/5'
                       }`}
                     >
                       <div className="flex items-center gap-2 truncate">
-                        {isChecked ? <CheckSquare size={14} className="opacity-80 shrink-0" /> : <Square size={14} className="opacity-40 shrink-0" />}
+                        {isChecked ? (
+                          <CheckSquare size={14} className={`shrink-0 ${theme === 'dark' ? 'text-[#6ba3e8]' : 'text-blue-700'}`} />
+                        ) : (
+                          <Square size={14} className="opacity-40 shrink-0" />
+                        )}
                         <span className="font-mono font-bold shrink-0">#{scene.sceneNumber}</span>
                         <span className="truncate">{scene.heading}</span>
                       </div>
@@ -573,7 +577,7 @@ export default function ActorSidesModal({
             <div className="flex-1 flex flex-col overflow-hidden">
               
               {/* Production Options Strip */}
-              <div className={`p-3 border-b flex flex-wrap items-center justify-between gap-3 text-xs shrink-0 ${theme === 'dark' ? 'bg-[#181e28] border-[#252f3d]' : 'bg-[#f4efe6] border-[#ded5c5]'}`}>
+              <div className={`p-3 border-b flex flex-wrap items-center justify-between gap-3 text-xs shrink-0 ${theme === 'dark' ? 'bg-[#1a1f25] border-[#2d3640]/70' : 'bg-[#f4eee4] border-[#c8bea8]/70'}`}>
                 <div className="flex flex-wrap items-center gap-3">
                   <div className="flex items-center gap-1.5">
                     <User size={14} className="opacity-60" />
@@ -582,9 +586,7 @@ export default function ActorSidesModal({
                       value={actorName}
                       onChange={(e) => setActorName(e.target.value)}
                       placeholder="Oyuncu Adı (Opsiyonel)"
-                      className={`px-2.5 py-1 rounded-lg text-xs border outline-none ${
-                        theme === 'dark' ? 'bg-[#10141a] border-slate-700 text-slate-200' : 'bg-white border-[#dcd4c4] text-slate-800'
-                      }`}
+                      className={`px-2.5 py-1 rounded-lg text-xs border outline-none transition-all ${inputBg}`}
                     />
                   </div>
 
@@ -595,9 +597,7 @@ export default function ActorSidesModal({
                       value={shootDay}
                       onChange={(e) => setShootDay(e.target.value)}
                       placeholder="Çekim Günü (Örn: Gün 1)"
-                      className={`px-2.5 py-1 rounded-lg text-xs border outline-none ${
-                        theme === 'dark' ? 'bg-[#10141a] border-slate-700 text-slate-200' : 'bg-white border-[#dcd4c4] text-slate-800'
-                      }`}
+                      className={`px-2.5 py-1 rounded-lg text-xs border outline-none transition-all ${inputBg}`}
                     />
                   </div>
                 </div>
@@ -611,14 +611,14 @@ export default function ActorSidesModal({
               </div>
 
               {/* Live Formatted Script Preview */}
-              <div className="flex-1 overflow-y-auto p-4 sm:p-8 flex justify-center bg-black/10 dark:bg-black/30">
+              <div className="flex-1 overflow-y-auto p-4 sm:p-8 flex justify-center bg-black/5 dark:bg-black/20 custom-scrollbar">
                 <div className={`w-full max-w-3xl p-6 sm:p-10 rounded-2xl shadow-xl border ${cardBg} font-mono text-xs sm:text-sm leading-relaxed select-text`}>
                   
                   {/* Sides Cover Sheet Header */}
-                  <div className="border border-slate-400 dark:border-slate-600 rounded-xl p-5 mb-8 bg-slate-500/5">
-                    <div className="flex justify-between items-start border-b pb-3 mb-3 border-slate-300 dark:border-slate-700">
+                  <div className={`border rounded-xl p-5 mb-8 ${theme === 'dark' ? 'border-[#2d3640] bg-[#15191f]' : 'border-[#c8bea8] bg-[#f4eee4]'}`}>
+                    <div className="flex justify-between items-start border-b pb-3 mb-3 border-inherit">
                       <div>
-                        <div className="text-xs font-bold opacity-60 uppercase tracking-widest">OYUNCU SET METNİ • SIDES</div>
+                        <div className={`text-xs font-bold uppercase tracking-widest ${theme === 'dark' ? 'text-[#6ba3e8]' : 'text-blue-700'}`}>OYUNCU SET METNİ • SIDES</div>
                         <div className="text-xl font-black text-slate-900 dark:text-white mt-1">{selectedCharacter}</div>
                         {actorName && <div className="text-xs font-semibold opacity-80 mt-0.5">Oyuncu: {actorName}</div>}
                       </div>
@@ -635,14 +635,14 @@ export default function ActorSidesModal({
 
                   {/* Render Scenes */}
                   {activeScenesToRender.length === 0 ? (
-                    <div className="p-12 text-center opacity-60">
+                    <div className="p-12 text-center opacity-60 font-sans">
                       Soldaki listeden sahne seçiniz.
                     </div>
                   ) : (
                     activeScenesToRender.map((scene) => {
                       let currentSpeaker = '';
                       return (
-                        <div key={scene.sceneId} className="mb-8 pt-4 border-t border-dashed border-slate-300 dark:border-slate-700">
+                        <div key={scene.sceneId} className="mb-8 pt-4 border-t border-dashed border-inherit">
                           {scene.elements.map((el) => {
                             if (el.type === 'scene') {
                               return (
@@ -666,7 +666,7 @@ export default function ActorSidesModal({
                                   key={el.id} 
                                   className={`font-bold uppercase mt-4 mb-0.5 text-center ${
                                     isTarget 
-                                      ? 'border border-slate-400 dark:border-slate-500 bg-slate-100 dark:bg-slate-800 text-slate-900 dark:text-slate-100 py-0.5 px-3 rounded-md w-fit mx-auto' 
+                                      ? (theme === 'dark' ? 'bg-[#6ba3e8]/20 text-[#6ba3e8] border border-[#6ba3e8]/40 py-0.5 px-3 rounded-md w-fit mx-auto' : 'bg-blue-100 text-blue-800 border border-blue-300 py-0.5 px-3 rounded-md w-fit mx-auto') 
                                       : 'w-fit mx-auto opacity-70'
                                   }`}
                                 >
@@ -686,7 +686,7 @@ export default function ActorSidesModal({
                                   key={el.id} 
                                   className={`max-w-[340px] mx-auto mb-3 px-2 py-0.5 rounded transition-colors ${
                                     isTarget 
-                                      ? 'bg-slate-200/70 dark:bg-slate-800/80 border-l-3 border-slate-600 dark:border-slate-400 font-medium text-slate-950 dark:text-slate-100' 
+                                      ? (theme === 'dark' ? 'bg-[#6ba3e8]/10 border-l-2 border-[#6ba3e8] font-medium text-slate-100' : 'bg-blue-50 border-l-2 border-blue-600 font-medium text-slate-900') 
                                       : 'opacity-70'
                                   }`}
                                 >
@@ -712,13 +712,13 @@ export default function ActorSidesModal({
           </div>
 
           {/* FOOTER & EXPORT BUTTONS */}
-          <div className={`px-5 py-3 border-t flex flex-wrap items-center justify-between gap-3 shrink-0 ${theme === 'dark' ? 'border-[#2d3640] bg-[#161c24]' : 'border-[#c8bea8] bg-[#ece4d6]'}`}>
+          <div className={`px-5 py-3 border-t flex flex-wrap items-center justify-between gap-3 shrink-0 ${headerBg}`}>
             <div className="flex items-center gap-2">
               <button
                 type="button"
                 onClick={handleExportMD}
                 disabled={activeScenesToRender.length === 0}
-                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-medium border transition-colors ${theme === 'dark' ? 'border-slate-700 bg-slate-800/80 hover:bg-slate-700 text-slate-300' : 'border-[#dfd6c5] bg-white hover:bg-stone-100 text-slate-700'}`}
+                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-medium border transition-colors ${theme === 'dark' ? 'border-[#2d3640] bg-[#20272e] hover:bg-[#2d3640] text-slate-300' : 'border-[#c8bea8] bg-white hover:bg-[#f4eee4] text-slate-700'}`}
                 title="Markdown Olarak İndir"
               >
                 <FileText size={14} />
@@ -728,7 +728,7 @@ export default function ActorSidesModal({
                 type="button"
                 onClick={handleExportDOCX}
                 disabled={activeScenesToRender.length === 0}
-                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-medium border transition-colors ${theme === 'dark' ? 'border-slate-700 bg-slate-800/80 hover:bg-slate-700 text-slate-300' : 'border-[#dfd6c5] bg-white hover:bg-stone-100 text-slate-700'}`}
+                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-medium border transition-colors ${theme === 'dark' ? 'border-[#2d3640] bg-[#20272e] hover:bg-[#2d3640] text-slate-300' : 'border-[#c8bea8] bg-white hover:bg-[#f4eee4] text-slate-700'}`}
                 title="Word (.docx) Olarak İndir"
               >
                 <Download size={14} />
@@ -738,7 +738,7 @@ export default function ActorSidesModal({
                 type="button"
                 onClick={handleExportPDF}
                 disabled={activeScenesToRender.length === 0}
-                className={`flex items-center gap-1.5 px-4 py-1.5 rounded-xl text-xs font-semibold transition-all border ${theme === 'dark' ? 'bg-slate-700 hover:bg-slate-600 text-white border-slate-600' : 'bg-slate-800 hover:bg-slate-900 text-white border-slate-700'}`}
+                className={`flex items-center gap-1.5 px-4 py-1.5 rounded-xl text-xs font-semibold transition-all border ${theme === 'dark' ? 'bg-[#6ba3e8] hover:bg-[#82b4f0] text-slate-950 border-[#6ba3e8]' : 'bg-blue-700 hover:bg-blue-800 text-white border-blue-700'}`}
                 title="Yazdır / PDF Olarak Kaydet"
               >
                 <Printer size={14} />
@@ -749,7 +749,7 @@ export default function ActorSidesModal({
             <button
               type="button"
               onClick={onClose}
-              className={`px-5 py-2 rounded-xl text-xs font-semibold transition-all ${theme === 'dark' ? 'bg-slate-700 hover:bg-slate-600 text-white' : 'bg-slate-800 hover:bg-slate-900 text-white'}`}
+              className={`px-5 py-2 rounded-xl text-xs font-semibold transition-all ${theme === 'dark' ? 'bg-[#20272e] hover:bg-[#2d3640] text-slate-200 border border-[#2d3640]' : 'bg-white hover:bg-[#f4eee4] text-slate-800 border border-[#c8bea8]'}`}
             >
               Kapat
             </button>

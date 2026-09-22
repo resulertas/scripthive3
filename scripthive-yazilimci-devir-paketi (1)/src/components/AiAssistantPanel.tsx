@@ -3,7 +3,7 @@ import {
   Sparkles, Send, Copy, Check, Plus, RefreshCw, X, 
   Settings2, Trash2, ChevronDown, 
   ArrowRight, ShieldCheck, Eye, EyeOff, Clapperboard,
-  MessageSquare, Zap, Sparkle
+  MessageSquare, Zap, Sparkle, Target, Layers
 } from 'lucide-react';
 import { ScreenplayElement, ElementType } from '../types';
 import { safeStorage } from '../lib/storage';
@@ -18,9 +18,9 @@ interface ModelOption {
 
 export const PROVIDER_MODELS: Record<AiProvider, ModelOption[]> = {
   gemini: [
-    { id: 'gemini-2.0-flash', name: 'Gemini 2.0 Flash', desc: 'Ücretsiz Kota & Ultra Hızlı' },
+    { id: 'gemini-1.5-flash', name: 'Gemini 1.5 Flash', desc: 'Hızlı, Dengeli ve Ücretsiz' },
     { id: 'gemini-1.5-pro', name: 'Gemini 1.5 Pro', desc: 'Gelişmiş Senaryo Doktoru' },
-    { id: 'gemini-1.5-flash', name: 'Gemini 1.5 Flash', desc: 'Hızlı ve Dengeli' },
+    { id: 'gemini-2.5-flash', name: 'Gemini 2.5 Flash', desc: 'Yeni Nesil Hızlı Model' },
   ],
   deepseek: [
     { id: 'deepseek-chat', name: 'DeepSeek V3 (Chat)', desc: 'Ultra Ekonomik (~$0.14/M token)' },
@@ -73,7 +73,7 @@ interface Message {
 
 export type ContextScope = 'replik' | 'scene' | 'recent' | 'none';
 
-interface SceneInfo {
+export interface SceneInfo {
   sceneNumber: number | string;
   heading: string;
   startIndex: number;
@@ -107,8 +107,8 @@ export default function AiAssistantPanel({
   
   const [selectedModel, setSelectedModel] = useState<string>(() => {
     const saved = safeStorage.getItem('scriptHive_ai_model');
-    if (saved) return saved;
-    return PROVIDER_MODELS.gemini[0].id;
+    if (saved && saved !== 'gemini-2.0-flash') return saved;
+    return 'gemini-1.5-flash';
   });
 
   const [apiKeys, setApiKeys] = useState<Record<string, string>>(() => {
@@ -146,7 +146,7 @@ export default function AiAssistantPanel({
       {
         id: 'welcome',
         sender: 'ai',
-        text: 'Merhaba! Ben ScriptHive Senaryo Asistanınızım. 🎬\n\nSenaryonuzda bir diyaloğa veya sahneye tıkladığınızda otomatik olarak tanırım. Fareyle seçim yapmanıza gerek kalmadan tek tıkla sahne incelemesi veya replik alternatifleri isteyebilirsiniz.',
+        text: 'Merhaba! Ben ScriptHive Senaryo Asistanınızım. 🎬\n\nKredinizi korumak için 100 sayfayı birden okumak yerine sadece istediğiniz sahneyi veya seçtiğiniz repliği okurum. Örneğin "12. sahneyi oku ve devamını öner" veya "seçtiğim repliği geliştir" demeniz yeterlidir!',
         timestamp: Date.now()
       }
     ];
@@ -212,10 +212,32 @@ export default function AiAssistantPanel({
     return stripHtml(focusedElement.content);
   }, [focusedElement]);
 
+  // Natural Language Intent Detectors
+  const detectedSceneFromPrompt = useMemo(() => {
+    if (!inputPrompt) return null;
+    const match = inputPrompt.match(/(?:(\d+)\s*\.?\s*sahne|\bsahne\s*[:#.]?\s*(\d+))/i);
+    if (match) {
+      const num = match[1] || match[2];
+      if (num) {
+        return allScenes.find(s => String(s.sceneNumber) === String(num)) || null;
+      }
+    }
+    return null;
+  }, [inputPrompt, allScenes]);
+
+  const detectedReplikIntent = useMemo(() => {
+    if (!inputPrompt) return false;
+    return /(?:seç(?:tiğim|ili)\s+(?:replik|diyalog|satır|cümle)|bu\s+(?:repli[kğ]|diyalo[gğ]|satır[ıi]|cümle[yiy]))/i.test(inputPrompt);
+  }, [inputPrompt]);
+
   // Compute estimated tokens for current scope
   const estimatedTokens = useMemo(() => {
     let text = '';
-    if (contextScope === 'replik' && focusedElement) {
+    if (detectedSceneFromPrompt) {
+      text = detectedSceneFromPrompt.elements.map(e => `${e.type.toUpperCase()}: ${stripHtml(e.content)}`).join('\n');
+    } else if (detectedReplikIntent && focusedElement) {
+      text = focusedPlain;
+    } else if (contextScope === 'replik' && focusedElement) {
       text = focusedPlain;
     } else if (contextScope === 'scene' && activeScene) {
       text = activeScene.elements.map(e => `${e.type.toUpperCase()}: ${stripHtml(e.content)}`).join('\n');
@@ -224,7 +246,7 @@ export default function AiAssistantPanel({
     }
     const wordCount = text.split(/\s+/).filter(Boolean).length + inputPrompt.split(/\s+/).filter(Boolean).length + 80;
     return Math.round(wordCount * 1.3);
-  }, [contextScope, focusedElement, focusedPlain, activeScene, elements, inputPrompt]);
+  }, [contextScope, detectedSceneFromPrompt, detectedReplikIntent, focusedElement, focusedPlain, activeScene, elements, inputPrompt]);
 
   useEffect(() => {
     safeStorage.setItem('scriptHive_ai_provider', provider);
@@ -271,8 +293,8 @@ export default function AiAssistantPanel({
     setTimeout(() => setCopiedId(null), 2000);
   };
 
-  // Core Send Message function
-  const handleSendMessage = async (customPrompt?: string, forcedScope?: ContextScope) => {
+  // Core Send Message function with Smart Scope Resolution
+  const handleSendMessage = async (customPrompt?: string, forcedScope?: ContextScope, explicitScene?: SceneInfo) => {
     const promptToSend = customPrompt || inputPrompt;
     if (!promptToSend.trim()) return;
 
@@ -282,7 +304,26 @@ export default function AiAssistantPanel({
       return;
     }
 
-    const scopeToUse = forcedScope || contextScope;
+    // Determine target scope and scene
+    let effectiveScope: ContextScope = forcedScope || contextScope;
+    let targetSceneToUse: SceneInfo | null = explicitScene || activeScene;
+
+    // Check if user specifically wrote a scene number in prompt
+    const promptSceneMatch = promptToSend.match(/(?:(\d+)\s*\.?\s*sahne|\bsahne\s*[:#.]?\s*(\d+))/i);
+    if (promptSceneMatch) {
+      const num = promptSceneMatch[1] || promptSceneMatch[2];
+      if (num) {
+        const found = allScenes.find(s => String(s.sceneNumber) === String(num));
+        if (found) {
+          targetSceneToUse = found;
+          effectiveScope = 'scene';
+        }
+      }
+    } else if (/(?:seç(?:tiğim|ili)\s+(?:replik|diyalog|satır|cümle)|bu\s+(?:repli[kğ]|diyalo[gğ]|satır[ıi]|cümle[yiy]))/i.test(promptToSend)) {
+      if (focusedElement) {
+        effectiveScope = 'replik';
+      }
+    }
 
     const userMessage: Message = {
       id: Date.now().toString(),
@@ -296,29 +337,30 @@ export default function AiAssistantPanel({
     setIsLoading(true);
 
     try {
-      // Build focused & economic context based on scope
+      // Build strictly focused context to minimize token usage
       let contextText = '';
-      if (scopeToUse === 'replik' && focusedElement) {
-        contextText = `YALNIZCA SEÇİLİ REPLİK/SATIR:\n[${focusedElement.type.toUpperCase()}]: "${focusedPlain}"`;
-      } else if (scopeToUse === 'scene' && activeScene) {
-        const sceneBody = activeScene.elements.map(e => `${e.type.toUpperCase()}: ${stripHtml(e.content)}`).join('\n');
-        contextText = `YALNIZCA İNCELENEN SAHNE (${activeScene.sceneNumber}. Sahne: ${activeScene.heading}):\n${sceneBody}`;
-        if (focusedElement && focusedElement.type !== 'scene') {
-          contextText += `\n\n(Yazarın sahnede odaklandığı satır: [${focusedElement.type.toUpperCase()}]: "${focusedPlain}")`;
+      if (effectiveScope === 'replik' && focusedElement) {
+        contextText = `[GÖNDERİLEN KAPSAM: YALNIZCA SEÇİLİ ${focusedElement.type.toUpperCase()} SATIRI]\n(Token tasarrufu amacıyla yalnızca yazarın seçtiği satır gönderilmiştir.)\n\nSEÇİLİ SATIR:\n[${focusedElement.type.toUpperCase()}]: "${focusedPlain}"`;
+      } else if (effectiveScope === 'scene' && targetSceneToUse) {
+        const sceneBody = targetSceneToUse.elements.map(e => `${e.type.toUpperCase()}: ${stripHtml(e.content)}`).join('\n');
+        contextText = `[GÖNDERİLEN KAPSAM: YALNIZCA ${targetSceneToUse.sceneNumber}. SAHNE (${targetSceneToUse.heading})]\n(Bu sahne toplam ${targetSceneToUse.elements.length} satırdır. Kredi tasarrufu için senaryonun diğer sayfaları hariç tutulmuştur.)\n\nSAHNE İÇERİĞİ:\n${sceneBody}`;
+        if (focusedElement && focusedElement.type !== 'scene' && targetSceneToUse.elements.some(e => e.id === focusedElement.id)) {
+          contextText += `\n\n(Yazarın bu sahne içinde odaklandığı satır: [${focusedElement.type.toUpperCase()}]: "${focusedPlain}")`;
         }
-      } else if (scopeToUse === 'recent') {
+      } else if (effectiveScope === 'recent') {
         const recent = elements.slice(-15).map(e => `${e.type.toUpperCase()}: ${stripHtml(e.content)}`).join('\n');
-        contextText = `SENARYONUN SON AKIŞI:\n${recent}`;
+        contextText = `[GÖNDERİLEN KAPSAM: YALNIZCA SON 15 SATIR]\n${recent}`;
         if (focusedElement) {
           contextText += `\n\n(Odaklanılan satır: [${focusedElement.type.toUpperCase()}]: "${focusedPlain}")`;
         }
       }
 
-      const systemInstruction = `Sen profesyonel, ödüllü ve deneyimli bir sinema/dizi senaristi ve senaryo doktorusun (Script Doctor).
-Kullanıcıya film/dizi senaryosu yazımında yardımcı oluyorsun.
+      const systemInstruction = `Sen profesyonel, yaratıcı ve ödüllü bir sinema/dizi senaristi ve senaryo doktorusun (Script Doctor).
+Kullanıcıya senaryo yazımında doğrudan, vurucu ve net yanıtlarla yardımcı oluyorsun.
 Amerikan ve Fransız senaryo formatlama kurallarına (Sahne Başlığı, Eylem, Karakter, Diyalog, Parantez İçi, Geçiş) tam anlamıyla hakimsin.
-Yanıtların doğrudan senaryoda kullanılmaya uygun, doğal, etkileyici ve sinematik olsun.
-Gereksiz uzun açıklamalar yapma, doğrudan istenen replikleri veya sahne düzeltmelerini sun.`;
+Kullanıcı kredi ve token tasarrufu amacıyla sana tüm senaryoyu değil, yalnızca üzerinde çalıştığı sahneyi veya seçtiği repliği göndermektedir.
+Yanıtların doğrudan senaryoya kopyalanıp yapıştırılmaya uygun, doğal, etkileyici ve sinematik olsun.
+Gereksiz uzun açıklamalar yapma; doğrudan istenen replik alternatiflerini, sahne önerilerini veya düzeltmeleri sun.`;
 
       const fullUserPrompt = contextText 
         ? `${contextText}\n\nYAZARIN TALEBİ:\n${promptToSend}`
@@ -328,7 +370,8 @@ Gereksiz uzun açıklamalar yapma, doğrudan istenen replikleri veya sahne düze
 
       // API calls
       if (provider === 'gemini') {
-        const url = `https://generativelanguage.googleapis.com/v1beta/models/${selectedModel || 'gemini-2.0-flash'}:generateContent?key=${currentKey.trim()}`;
+        const modelToUse = (selectedModel && selectedModel !== 'gemini-2.0-flash') ? selectedModel : 'gemini-1.5-flash';
+        const url = `https://generativelanguage.googleapis.com/v1beta/models/${modelToUse}:generateContent?key=${currentKey.trim()}`;
         const response = await fetch(url, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
@@ -561,7 +604,7 @@ Gereksiz uzun açıklamalar yapma, doğrudan istenen replikleri veya sahne düze
                 {PROVIDER_NAMES[provider].split(' ')[0]}
               </span>
             </div>
-            <p className="text-[10px] opacity-60">Senaryo ve diyalog optimizasyonu</p>
+            <p className="text-[10px] opacity-60">Kredi tasarruflu sahne ve replik odaklı yapay zeka</p>
           </div>
         </div>
 
@@ -703,19 +746,56 @@ Gereksiz uzun açıklamalar yapma, doğrudan istenen replikleri veya sahne düze
         </div>
       )}
 
-      {/* SMART SCENE & REPLIK CONTROLLER BAR */}
+      {/* SMART SCENE & REPLIK CONTROLLER BAR (KREDİ VE TOKEN KORUMA MERKEZİ) */}
       <div className={`p-2.5 border-b shrink-0 space-y-2 text-xs select-none ${cardBg}`}>
         
-        {/* 1. Scene Selector Bar */}
+        {/* 1. Context Scope Switcher Badges */}
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-1">
+            <span className="text-[10px] font-bold uppercase tracking-wider opacity-60">Kapsam:</span>
+            {[
+              { id: 'scene', label: '🎬 Sahne', desc: 'Yalnızca seçilen sahneyi okur (~200 token)' },
+              { id: 'replik', label: '💬 Replik', desc: 'Yalnızca seçili satırı okur (~40 token)' },
+              { id: 'recent', label: '📑 Son 15', desc: 'Son 15 satırı okur (~500 token)' },
+              { id: 'none', label: '❓ Yalnız Soru', desc: 'Senaryo metni göndermez' },
+            ].map((sc) => {
+              const isSelected = contextScope === sc.id;
+              return (
+                <button
+                  key={sc.id}
+                  onClick={() => setContextScope(sc.id as ContextScope)}
+                  className={`px-2 py-0.5 rounded-md text-[10px] font-semibold transition-all border ${
+                    isSelected
+                      ? (theme === 'dark' ? 'bg-[#6ba3e8] border-[#6ba3e8] text-slate-950 shadow-xs' : 'bg-blue-700 border-blue-700 text-white shadow-xs')
+                      : (theme === 'dark' ? 'border-slate-700 bg-slate-800/40 text-slate-400 hover:text-slate-200' : 'border-[#c8bea8] bg-white/60 text-slate-700 hover:text-black')
+                  }`}
+                  title={sc.desc}
+                >
+                  {sc.label}
+                </button>
+              );
+            })}
+          </div>
+
+          <div className="flex items-center gap-1 font-mono text-[10px] opacity-75" title="Gönderilecek tahmini token">
+            <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse inline-block" />
+            <span>~{estimatedTokens} Tok</span>
+          </div>
+        </div>
+
+        {/* 2. Scene Selector Dropdown (When in Scene Scope or Always Available) */}
         <div className="flex items-center gap-2">
           <Clapperboard size={15} className="text-blue-500 shrink-0" />
           <div className="flex-1 min-w-0">
             {allScenes.length > 0 ? (
               <select
                 value={activeScene?.sceneNumber || 1}
-                onChange={(e) => setSelectedSceneNum(e.target.value)}
+                onChange={(e) => {
+                  setSelectedSceneNum(e.target.value);
+                  setContextScope('scene');
+                }}
                 className={`w-full py-1 px-2 rounded-lg text-xs font-semibold outline-none border cursor-pointer truncate ${inputClass}`}
-                title="İncelenecek Sahneyi Seçin"
+                title="İncelenecek Sahneyi Seçin (Yalnızca bu sahne yapay zekaya gönderilir)"
               >
                 {allScenes.map((sc) => (
                   <option key={sc.sceneNumber} value={sc.sceneNumber} className="bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100">
@@ -729,7 +809,7 @@ Gereksiz uzun açıklamalar yapma, doğrudan istenen replikleri veya sahne düze
           </div>
         </div>
 
-        {/* 2. Active Replik / Line Card (if focused) */}
+        {/* 3. Active Replik / Line Card (if focused) */}
         {focusedElement && focusedPlain && (
           <div className={`p-2 rounded-xl border flex flex-col gap-1.5 ${theme === 'dark' ? 'bg-[#1f262e] border-slate-700/80' : 'bg-white/80 border-[#c8bea8]'}`}>
             <div className="flex items-center justify-between text-[11px]">
@@ -737,7 +817,12 @@ Gereksiz uzun açıklamalar yapma, doğrudan istenen replikleri veya sahne düze
                 <MessageSquare size={12} className="text-amber-500" />
                 Seçili {focusedElement.type === 'dialogue' ? 'Diyalog' : focusedElement.type === 'character' ? 'Karakter' : 'Satır'}
               </span>
-              <span className="text-[10px] opacity-50 font-mono">#{focusedElement.id.slice(-4)}</span>
+              <button 
+                onClick={() => setContextScope('replik')}
+                className={`text-[9px] px-1.5 py-0.2 rounded font-bold transition-colors ${contextScope === 'replik' ? 'bg-amber-500 text-slate-950' : 'opacity-60 hover:opacity-100'}`}
+              >
+                {contextScope === 'replik' ? '✓ Odakta' : 'Yalnız Bunu Oku'}
+              </button>
             </div>
             <p className="text-xs italic line-clamp-2 opacity-90 font-mono">
               "{focusedPlain}"
@@ -781,7 +866,7 @@ Gereksiz uzun açıklamalar yapma, doğrudan istenen replikleri veya sahne düze
           </div>
         )}
 
-        {/* 3. Quick Scene-Level Actions (Fareyle Seçmeden Tek Tıkla Sahne Doktorluğu) */}
+        {/* 4. Quick Scene-Level Actions */}
         {activeScene && (
           <div className="flex items-center gap-1.5 overflow-x-auto no-scrollbar pt-0.5">
             <button
@@ -792,18 +877,18 @@ Gereksiz uzun açıklamalar yapma, doğrudan istenen replikleri veya sahne düze
               }`}
               title="Bu sahneyi baştan sona inceler ve iyileştirme önerileri sunar"
             >
-              <Zap size={11} /> Sahneyi İncele & İyileştir
+              <Zap size={11} /> Sahne {activeScene.sceneNumber}'i İncele
             </button>
 
             <button
-              onClick={() => handleSendMessage(`Sahne ${activeScene.sceneNumber} sahnesindeki diyalogları incele; yapay veya tekrar eden cümleleri tespit edip doğallaştırarak yeniden yaz.`, 'scene')}
+              onClick={() => handleSendMessage(`Sahne ${activeScene.sceneNumber} sahnesinden sonra hikayeyi ileri taşıyacak 2 farklı sonraki sahne fikri öner.`, 'scene')}
               disabled={isLoading}
               className={`px-2 py-1 rounded-md text-[11px] font-medium border shrink-0 transition-all ${
                 theme === 'dark' ? 'border-slate-700 text-slate-300 hover:bg-slate-800' : 'border-[#c8bea8] text-slate-800 hover:bg-white'
               }`}
-              title="Sahnedeki tüm diyalogları doğal konuşma diline uyarlar"
+              title="Bir sonraki sahne için yaratıcı fikirler üretir"
             >
-              Diyalogları Doğallaştır
+              Sonraki Sahne Öner
             </button>
 
             <button
@@ -816,49 +901,8 @@ Gereksiz uzun açıklamalar yapma, doğrudan istenen replikleri veya sahne düze
             >
               Çatışmayı Artır
             </button>
-
-            <button
-              onClick={() => handleSendMessage(`Sahne ${activeScene.sceneNumber} sahnesinden sonra hikayeyi ileri taşıyacak 2 farklı sonraki sahne fikri öner.`, 'scene')}
-              disabled={isLoading}
-              className={`px-2 py-1 rounded-md text-[11px] font-medium border shrink-0 transition-all ${
-                theme === 'dark' ? 'border-slate-700 text-slate-300 hover:bg-slate-800' : 'border-[#c8bea8] text-slate-800 hover:bg-white'
-              }`}
-              title="Bir sonraki sahne için yaratıcı fikirler üretir"
-            >
-              Sonraki Sahne Fikri
-            </button>
           </div>
         )}
-
-        {/* 4. Context Scope Selector & Token Badge */}
-        <div className="flex items-center justify-between pt-1 border-t border-slate-700/20 text-[10px]">
-          <div className="flex items-center gap-1">
-            <span className="opacity-60 font-semibold">Kapsam:</span>
-            {[
-              { id: 'scene', label: 'Sahne' },
-              { id: 'replik', label: 'Replik' },
-              { id: 'recent', label: 'Son 15' },
-              { id: 'none', label: 'Yalnız Soru' },
-            ].map((sc) => (
-              <button
-                key={sc.id}
-                onClick={() => setContextScope(sc.id as ContextScope)}
-                className={`px-1.5 py-0.5 rounded transition-colors ${
-                  contextScope === sc.id
-                    ? (theme === 'dark' ? 'bg-blue-600 text-white font-bold' : 'bg-blue-700 text-white font-bold')
-                    : 'opacity-60 hover:opacity-100'
-                }`}
-              >
-                {sc.label}
-              </button>
-            ))}
-          </div>
-
-          <div className="flex items-center gap-1 font-mono text-[10px] opacity-70" title="Tahmini Girdi Token Miktarı">
-            <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 inline-block" />
-            <span>~{estimatedTokens} Token</span>
-          </div>
-        </div>
 
       </div>
 
@@ -923,12 +967,26 @@ Gereksiz uzun açıklamalar yapma, doğrudan istenen replikleri veya sahne düze
         {isLoading && (
           <div className="flex items-center gap-2 text-xs font-semibold opacity-70 p-2">
             <RefreshCw size={13} className="animate-spin text-blue-500" />
-            <span>{PROVIDER_NAMES[provider]} ({selectedModel}) yanıt hazırlıyor...</span>
+            <span>{PROVIDER_NAMES[provider]} ({selectedModel}) odaklı analiz yapıyor...</span>
           </div>
         )}
 
         <div ref={chatEndRef} />
       </div>
+
+      {/* Live Auto-Intent Detection Badge (Above Textarea) */}
+      {(detectedSceneFromPrompt || detectedReplikIntent) && (
+        <div className={`px-3 py-1 text-[10px] flex items-center gap-1.5 border-t font-semibold ${theme === 'dark' ? 'bg-blue-950/40 text-blue-300 border-blue-900/50' : 'bg-blue-50 text-blue-800 border-blue-200'}`}>
+          <Target size={12} className="text-blue-500 shrink-0" />
+          <span>
+            {detectedSceneFromPrompt ? (
+              <>İsteğiniz algılandı: <strong>Yalnızca Sahne {detectedSceneFromPrompt.sceneNumber}</strong> okunacak (~{Math.round((detectedSceneFromPrompt.elements.map(e => stripHtml(e.content)).join(' ').split(/\s+/).length + 80) * 1.3)} Token)</>
+            ) : (
+              <>İsteğiniz algılandı: <strong>Yalnızca Seçili Replik</strong> okunacak (~{Math.round((focusedPlain.split(/\s+/).length + 80) * 1.3)} Token)</>
+            )}
+          </span>
+        </div>
+      )}
 
       {/* Input Box */}
       <div className={`p-2.5 border-t flex items-end gap-2 shrink-0 ${headerBg}`}>
@@ -943,7 +1001,13 @@ Gereksiz uzun açıklamalar yapma, doğrudan istenen replikleri veya sahne düze
                 handleSendMessage();
               }
             }}
-            placeholder="Yapay zekaya sorun veya bir istek yazın... (Enter: Gönder, Shift+Enter: Yeni satır)"
+            placeholder={
+              contextScope === 'replik'
+                ? "Seçili replik için bir istek yazın... (Örn: 'Daha vurucu yap')"
+                : contextScope === 'scene'
+                ? `Sahne ${activeScene?.sceneNumber || 1} için istek yazın... (Örn: '12. sahneyi oku ve devamını öner')`
+                : "Yapay zekaya sorun veya sahne/replik numarası belirtin..."
+            }
             className={`w-full p-2 rounded-xl text-xs outline-none resize-none border ${inputClass}`}
           />
         </div>

@@ -1,8 +1,9 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useMemo } from 'react';
 import { 
   Sparkles, Send, Copy, Check, Plus, RefreshCw, X, 
-  Settings2, Bot, Trash2, Key, Globe, ChevronDown, 
-  ArrowRight, ShieldCheck, Eye, EyeOff
+  Settings2, Trash2, ChevronDown, 
+  ArrowRight, ShieldCheck, Eye, EyeOff, Clapperboard,
+  MessageSquare, Zap, Sparkle, Target, Layers
 } from 'lucide-react';
 import { ScreenplayElement, ElementType } from '../types';
 import { safeStorage } from '../lib/storage';
@@ -17,50 +18,49 @@ interface ModelOption {
 
 export const PROVIDER_MODELS: Record<AiProvider, ModelOption[]> = {
   gemini: [
-    { id: 'gemini-2.0-flash', name: 'Gemini 2.0 Flash', desc: 'En yeni ve ultra hızlı Google modeli' },
-    { id: 'gemini-1.5-pro', name: 'Gemini 1.5 Pro', desc: 'Gelişmiş senaryo analizi ve yaratıcılık' },
-    { id: 'gemini-1.5-flash', name: 'Gemini 1.5 Flash', desc: 'Hızlı ve dengeli' },
-  ],
-  openai: [
-    { id: 'gpt-4o', name: 'GPT-4o', desc: 'En yetenekli amiral gemisi model' },
-    { id: 'gpt-4o-mini', name: 'GPT-4o Mini', desc: 'Hızlı, hafif ve ekonomik' },
-    { id: 'o3-mini', name: 'o3 Mini', desc: 'Gelişmiş olay örgüsü ve mantık' },
-    { id: 'gpt-4-turbo', name: 'GPT-4 Turbo', desc: 'Kapsamlı metin üretimi' },
-  ],
-  claude: [
-    { id: 'claude-3-5-sonnet-20241022', name: 'Claude 3.5 Sonnet', desc: 'Edebi kalite ve diyalog doğallığında lider' },
-    { id: 'claude-3-5-haiku-20241022', name: 'Claude 3.5 Haiku', desc: 'Ultra hızlı tepki süresi' },
-    { id: 'claude-3-opus-20240229', name: 'Claude 3 Opus', desc: 'Derin karakter ve sahne çözümlemesi' },
+    { id: 'gemini-1.5-flash', name: 'Gemini 1.5 Flash', desc: 'Hızlı, Dengeli ve Ücretsiz' },
+    { id: 'gemini-1.5-pro', name: 'Gemini 1.5 Pro', desc: 'Gelişmiş Senaryo Doktoru' },
+    { id: 'gemini-2.5-flash', name: 'Gemini 2.5 Flash', desc: 'Yeni Nesil Hızlı Model' },
   ],
   deepseek: [
-    { id: 'deepseek-chat', name: 'DeepSeek V3 (Chat)', desc: 'Yüksek kaliteli genel ve yaratıcı yazım' },
-    { id: 'deepseek-reasoner', name: 'DeepSeek R1 (Reasoner)', desc: 'Derin düşünce ve olay örgüsü kurgulama' },
+    { id: 'deepseek-chat', name: 'DeepSeek V3 (Chat)', desc: 'Ultra Ekonomik (~$0.14/M token)' },
+    { id: 'deepseek-reasoner', name: 'DeepSeek R1', desc: 'Derin Olay Örgüsü Analizi' },
+  ],
+  openai: [
+    { id: 'gpt-4o-mini', name: 'GPT-4o Mini', desc: 'Hafif, Hızlı ve Ekonomik' },
+    { id: 'gpt-4o', name: 'GPT-4o', desc: 'Amiral Gemisi Model' },
+    { id: 'o3-mini', name: 'o3 Mini', desc: 'Gelişmiş Mantık ve Kurgu' },
+    { id: 'gpt-4-turbo', name: 'GPT-4 Turbo', desc: 'Kapsamlı Metin Üretimi' },
+  ],
+  claude: [
+    { id: 'claude-3-5-sonnet-20241022', name: 'Claude 3.5 Sonnet', desc: 'Doğal Diyalog & Edebi Kalite' },
+    { id: 'claude-3-5-haiku-20241022', name: 'Claude 3.5 Haiku', desc: 'Ultra Hızlı' },
+    { id: 'claude-3-opus-20240229', name: 'Claude 3 Opus', desc: 'Derin Karakter Çözümlemesi' },
   ],
   mistral: [
-    { id: 'mistral-large-latest', name: 'Mistral Large', desc: 'Avrupa merkezli güçlü büyük model' },
-    { id: 'mistral-small-latest', name: 'Mistral Small', desc: 'Hızlı ve tutarlı' },
-    { id: 'codestral-latest', name: 'Codestral', desc: 'Hızlı metin üretimi' },
+    { id: 'mistral-large-latest', name: 'Mistral Large', desc: 'Güçlü Büyük Model' },
+    { id: 'mistral-small-latest', name: 'Mistral Small', desc: 'Hızlı ve Tutarlı' },
+    { id: 'codestral-latest', name: 'Codestral', desc: 'Hızlı Metin Üretimi' },
   ],
   openrouter: [
-    { id: 'google/gemini-2.0-flash-001', name: 'Gemini 2.0 Flash (OpenRouter)', desc: 'OpenRouter üzerinden Gemini' },
-    { id: 'anthropic/claude-3.5-sonnet', name: 'Claude 3.5 Sonnet (OpenRouter)', desc: 'OpenRouter üzerinden Claude' },
-    { id: 'openai/gpt-4o', name: 'GPT-4o (OpenRouter)', desc: 'OpenRouter üzerinden OpenAI' },
-    { id: 'deepseek/deepseek-r1', name: 'DeepSeek R1 (OpenRouter)', desc: 'OpenRouter üzerinden DeepSeek R1' },
-    { id: 'meta-llama/llama-3.3-70b-instruct', name: 'Llama 3.3 70B (OpenRouter)', desc: 'Açık kaynak Meta Llama' },
+    { id: 'google/gemini-2.0-flash-001', name: 'Gemini 2.0 Flash (OpenRouter)', desc: 'OpenRouter Üzerinden' },
+    { id: 'anthropic/claude-3.5-sonnet', name: 'Claude 3.5 Sonnet (OpenRouter)', desc: 'OpenRouter Üzerinden' },
+    { id: 'openai/gpt-4o', name: 'GPT-4o (OpenRouter)', desc: 'OpenRouter Üzerinden' },
+    { id: 'deepseek/deepseek-r1', name: 'DeepSeek R1 (OpenRouter)', desc: 'OpenRouter Üzerinden' },
   ],
   custom: [
-    { id: 'default', name: 'Özel / Yerel Model', desc: 'Ollama, LM Studio veya uyumlu API' }
+    { id: 'default', name: 'Özel / Yerel Model', desc: 'Ollama, LM Studio vb.' }
   ]
 };
 
 const PROVIDER_NAMES: Record<AiProvider, string> = {
   gemini: 'Google Gemini',
-  openai: 'OpenAI (ChatGPT)',
-  claude: 'Anthropic Claude',
   deepseek: 'DeepSeek',
+  openai: 'OpenAI',
+  claude: 'Anthropic Claude',
   mistral: 'Mistral AI',
   openrouter: 'OpenRouter',
-  custom: 'Özel / Yerel (Ollama vb.)'
+  custom: 'Özel / Yerel'
 };
 
 interface Message {
@@ -69,6 +69,16 @@ interface Message {
   text: string;
   suggestedType?: ElementType;
   timestamp: number;
+}
+
+export type ContextScope = 'replik' | 'scene' | 'recent' | 'none';
+
+export interface SceneInfo {
+  sceneNumber: number | string;
+  heading: string;
+  startIndex: number;
+  endIndex: number;
+  elements: ScreenplayElement[];
 }
 
 interface AiAssistantModalProps {
@@ -97,8 +107,8 @@ export default function AiAssistantModal({
   
   const [selectedModel, setSelectedModel] = useState<string>(() => {
     const saved = safeStorage.getItem('scriptHive_ai_model');
-    if (saved) return saved;
-    return PROVIDER_MODELS.gemini[0].id;
+    if (saved && saved !== 'gemini-2.0-flash') return saved;
+    return 'gemini-1.5-flash';
   });
 
   const [apiKeys, setApiKeys] = useState<Record<string, string>>(() => {
@@ -124,6 +134,8 @@ export default function AiAssistantModal({
   const [inputPrompt, setInputPrompt] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [copiedId, setCopiedId] = useState<string | null>(null);
+  const [selectedSceneNum, setSelectedSceneNum] = useState<number | string | null>(null);
+  const [contextScope, setContextScope] = useState<ContextScope>('scene');
 
   const [messages, setMessages] = useState<Message[]>(() => {
     const saved = safeStorage.getItem('scriptHive_ai_messages');
@@ -134,13 +146,107 @@ export default function AiAssistantModal({
       {
         id: 'welcome',
         sender: 'ai',
-        text: 'Merhaba! Ben ScriptHive Senaryo Asistanınızım. 🎬\n\nSize sahne kurgulama, diyalog yazma, karakter geliştirme veya senaryo doktorluğu (Script Doctor) desteği verebilirim. Dilediğiniz yapay zekayı (Gemini, OpenAI, Claude, DeepSeek, Mistral) seçebilir ve doğrudan çalışmaya başlayabilirsiniz!',
+        text: 'Merhaba! Ben ScriptHive Senaryo Asistanınızım. 🎬\n\nKredinizi korumak için 100 sayfayı birden okumak yerine sadece istediğiniz sahneyi veya seçtiğiniz repliği okurum. Örneğin "12. sahneyi oku ve devamını öner" veya "seçtiğim repliği geliştir" demeniz yeterlidir!',
         timestamp: Date.now()
       }
     ];
   });
 
   const chatEndRef = useRef<HTMLDivElement>(null);
+
+  // Parse and extract all scenes with their indices and elements
+  const allScenes: SceneInfo[] = useMemo(() => {
+    const list: SceneInfo[] = [];
+    let currentScene: SceneInfo | null = null;
+    let autoSceneIndex = 0;
+
+    elements.forEach((el, idx) => {
+      if (el.type === 'scene') {
+        if (currentScene) {
+          currentScene.endIndex = idx - 1;
+          list.push(currentScene);
+        }
+        autoSceneIndex++;
+        const plainHeading = el.content ? el.content.replace(/<[^>]+>/g, '').replace(/&nbsp;/g, ' ').trim() : `Sahne ${autoSceneIndex}`;
+        currentScene = {
+          sceneNumber: el.sceneNumber !== undefined ? el.sceneNumber : autoSceneIndex,
+          heading: plainHeading,
+          startIndex: idx,
+          endIndex: elements.length - 1,
+          elements: [el]
+        };
+      } else if (currentScene) {
+        currentScene.elements.push(el);
+      }
+    });
+
+    if (currentScene) {
+      currentScene.endIndex = elements.length - 1;
+      list.push(currentScene);
+    }
+    return list;
+  }, [elements]);
+
+  // Determine currently active scene based on focused element or selectedSceneNum
+  const activeScene: SceneInfo | null = useMemo(() => {
+    if (selectedSceneNum !== null) {
+      const found = allScenes.find(s => String(s.sceneNumber) === String(selectedSceneNum));
+      if (found) return found;
+    }
+    if (focusedElement) {
+      const found = allScenes.find(s => s.elements.some(e => e.id === focusedElement.id));
+      if (found) return found;
+    }
+    return allScenes[0] || null;
+  }, [allScenes, focusedElement, selectedSceneNum]);
+
+  // Strip HTML utility
+  const stripHtml = (html: string) => {
+    if (!html) return '';
+    return html.replace(/<[^>]+>/g, '').replace(/&nbsp;/g, ' ').trim();
+  };
+
+  // Plain focused content
+  const focusedPlain = useMemo(() => {
+    if (!focusedElement) return '';
+    return stripHtml(focusedElement.content);
+  }, [focusedElement]);
+
+  // Natural Language Intent Detectors
+  const detectedSceneFromPrompt = useMemo(() => {
+    if (!inputPrompt) return null;
+    const match = inputPrompt.match(/(?:(\d+)\s*\.?\s*sahne|\bsahne\s*[:#.]?\s*(\d+))/i);
+    if (match) {
+      const num = match[1] || match[2];
+      if (num) {
+        return allScenes.find(s => String(s.sceneNumber) === String(num)) || null;
+      }
+    }
+    return null;
+  }, [inputPrompt, allScenes]);
+
+  const detectedReplikIntent = useMemo(() => {
+    if (!inputPrompt) return false;
+    return /(?:seç(?:tiğim|ili)\s+(?:replik|diyalog|satır|cümle)|bu\s+(?:repli[kğ]|diyalo[gğ]|satır[ıi]|cümle[yiy]))/i.test(inputPrompt);
+  }, [inputPrompt]);
+
+  // Compute estimated tokens for current scope
+  const estimatedTokens = useMemo(() => {
+    let text = '';
+    if (detectedSceneFromPrompt) {
+      text = detectedSceneFromPrompt.elements.map(e => `${e.type.toUpperCase()}: ${stripHtml(e.content)}`).join('\n');
+    } else if (detectedReplikIntent && focusedElement) {
+      text = focusedPlain;
+    } else if (contextScope === 'replik' && focusedElement) {
+      text = focusedPlain;
+    } else if (contextScope === 'scene' && activeScene) {
+      text = activeScene.elements.map(e => `${e.type.toUpperCase()}: ${stripHtml(e.content)}`).join('\n');
+    } else if (contextScope === 'recent') {
+      text = elements.slice(-15).map(e => `${e.type.toUpperCase()}: ${stripHtml(e.content)}`).join('\n');
+    }
+    const wordCount = text.split(/\s+/).filter(Boolean).length + inputPrompt.split(/\s+/).filter(Boolean).length + 80;
+    return Math.round(wordCount * 1.3);
+  }, [contextScope, detectedSceneFromPrompt, detectedReplikIntent, focusedElement, focusedPlain, activeScene, elements, inputPrompt]);
 
   useEffect(() => {
     safeStorage.setItem('scriptHive_ai_provider', provider);
@@ -166,7 +272,6 @@ export default function AiAssistantModal({
     }
   }, [messages, isOpen]);
 
-  // Update selectedModel if provider changes and model doesn't belong to it
   const handleProviderChange = (newProvider: AiProvider) => {
     setProvider(newProvider);
     const available = PROVIDER_MODELS[newProvider];
@@ -188,7 +293,8 @@ export default function AiAssistantModal({
     setTimeout(() => setCopiedId(null), 2000);
   };
 
-  const handleSendMessage = async (customPrompt?: string) => {
+  // Core Send Message function with Smart Scope Resolution
+  const handleSendMessage = async (customPrompt?: string, forcedScope?: ContextScope, explicitScene?: SceneInfo) => {
     const promptToSend = customPrompt || inputPrompt;
     if (!promptToSend.trim()) return;
 
@@ -196,6 +302,27 @@ export default function AiAssistantModal({
     if (provider !== 'custom' && !currentKey.trim()) {
       setIsSettingsOpen(true);
       return;
+    }
+
+    // Determine target scope and scene
+    let effectiveScope: ContextScope = forcedScope || contextScope;
+    let targetSceneToUse: SceneInfo | null = explicitScene || activeScene;
+
+    // Check if user specifically wrote a scene number in prompt
+    const promptSceneMatch = promptToSend.match(/(?:(\d+)\s*\.?\s*sahne|\bsahne\s*[:#.]?\s*(\d+))/i);
+    if (promptSceneMatch) {
+      const num = promptSceneMatch[1] || promptSceneMatch[2];
+      if (num) {
+        const found = allScenes.find(s => String(s.sceneNumber) === String(num));
+        if (found) {
+          targetSceneToUse = found;
+          effectiveScope = 'scene';
+        }
+      }
+    } else if (/(?:seç(?:tiğim|ili)\s+(?:replik|diyalog|satır|cümle)|bu\s+(?:repli[kğ]|diyalo[gğ]|satır[ıi]|cümle[yiy]))/i.test(promptToSend)) {
+      if (focusedElement) {
+        effectiveScope = 'replik';
+      }
     }
 
     const userMessage: Message = {
@@ -210,34 +337,48 @@ export default function AiAssistantModal({
     setIsLoading(true);
 
     try {
-      const recentContext = elements.slice(-15).map(e => `${e.type.toUpperCase()}: ${e.content}`).join('\n');
-      const focusedContext = focusedElement 
-        ? `\nŞu an yazarın odaklandığı satır: [${focusedElement.type.toUpperCase()}]: "${focusedElement.content}"`
-        : '';
+      // Build strictly focused context to minimize token usage
+      let contextText = '';
+      if (effectiveScope === 'replik' && focusedElement) {
+        contextText = `[GÖNDERİLEN KAPSAM: YALNIZCA SEÇİLİ ${focusedElement.type.toUpperCase()} SATIRI]\n(Token tasarrufu amacıyla yalnızca yazarın seçtiği satır gönderilmiştir.)\n\nSEÇİLİ SATIR:\n[${focusedElement.type.toUpperCase()}]: "${focusedPlain}"`;
+      } else if (effectiveScope === 'scene' && targetSceneToUse) {
+        const sceneBody = targetSceneToUse.elements.map(e => `${e.type.toUpperCase()}: ${stripHtml(e.content)}`).join('\n');
+        contextText = `[GÖNDERİLEN KAPSAM: YALNIZCA ${targetSceneToUse.sceneNumber}. SAHNE (${targetSceneToUse.heading})]\n(Bu sahne toplam ${targetSceneToUse.elements.length} satırdır. Kredi tasarrufu için senaryonun diğer sayfaları hariç tutulmuştur.)\n\nSAHNE İÇERİĞİ:\n${sceneBody}`;
+        if (focusedElement && focusedElement.type !== 'scene' && targetSceneToUse.elements.some(e => e.id === focusedElement.id)) {
+          contextText += `\n\n(Yazarın bu sahne içinde odaklandığı satır: [${focusedElement.type.toUpperCase()}]: "${focusedPlain}")`;
+        }
+      } else if (effectiveScope === 'recent') {
+        const recent = elements.slice(-15).map(e => `${e.type.toUpperCase()}: ${stripHtml(e.content)}`).join('\n');
+        contextText = `[GÖNDERİLEN KAPSAM: YALNIZCA SON 15 SATIR]\n${recent}`;
+        if (focusedElement) {
+          contextText += `\n\n(Odaklanılan satır: [${focusedElement.type.toUpperCase()}]: "${focusedPlain}")`;
+        }
+      }
 
-      const systemInstruction = `Sen profesyonel, ödüllü ve deneyimli bir sinema/dizi senaristi ve senaryo doktorusun (Script Doctor).
-Kullanıcıya film/dizi senaryosu yazımında yardımcı oluyorsun.
+      const systemInstruction = `Sen profesyonel, yaratıcı ve ödüllü bir sinema/dizi senaristi ve senaryo doktorusun (Script Doctor).
+Kullanıcıya senaryo yazımında doğrudan, vurucu ve net yanıtlarla yardımcı oluyorsun.
 Amerikan ve Fransız senaryo formatlama kurallarına (Sahne Başlığı, Eylem, Karakter, Diyalog, Parantez İçi, Geçiş) tam anlamıyla hakimsin.
-Yanıtların kısa, etkileyici, sinematik ve doğrudan senaryoya yapıştırılmaya uygun olsun.
-Türkçe dili kurallarına, sokak/günlük konuşma doğallığına ve senaryo ritmine dikkat et.`;
+Kullanıcı kredi ve token tasarrufu amacıyla sana tüm senaryoyu değil, yalnızca üzerinde çalıştığı sahneyi veya seçtiği repliği göndermektedir.
+Yanıtların doğrudan senaryoya kopyalanıp yapıştırılmaya uygun, doğal, etkileyici ve sinematik olsun.
+Gereksiz uzun açıklamalar yapma; doğrudan istenen replik alternatiflerini, sahne önerilerini veya düzeltmeleri sun.`;
 
-      const fullUserPrompt = `Senaryonun Son Kısmı:\n${recentContext}${focusedContext}\n\nYazarın Talebi:\n${promptToSend}`;
+      const fullUserPrompt = contextText 
+        ? `${contextText}\n\nYAZARIN TALEBİ:\n${promptToSend}`
+        : `YAZARIN TALEBİ:\n${promptToSend}`;
 
       let aiText = '';
 
-      // Call the corresponding provider API
+      // API calls
       if (provider === 'gemini') {
-        const url = `https://generativelanguage.googleapis.com/v1beta/models/${selectedModel || 'gemini-2.0-flash'}:generateContent?key=${currentKey.trim()}`;
+        const modelToUse = (selectedModel && selectedModel !== 'gemini-2.0-flash') ? selectedModel : 'gemini-1.5-flash';
+        const url = `https://generativelanguage.googleapis.com/v1beta/models/${modelToUse}:generateContent?key=${currentKey.trim()}`;
         const response = await fetch(url, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
             systemInstruction: { parts: [{ text: systemInstruction }] },
             contents: [{ parts: [{ text: fullUserPrompt }] }],
-            generationConfig: {
-              temperature: 0.7,
-              maxOutputTokens: 1500
-            }
+            generationConfig: { temperature: 0.7, maxOutputTokens: 1500 }
           })
         });
 
@@ -257,7 +398,7 @@ Türkçe dili kurallarına, sokak/günlük konuşma doğallığına ve senaryo r
             'Authorization': `Bearer ${currentKey.trim()}`
           },
           body: JSON.stringify({
-            model: selectedModel || 'gpt-4o',
+            model: selectedModel || 'gpt-4o-mini',
             messages: [
               { role: 'system', content: systemInstruction },
               { role: 'user', content: fullUserPrompt }
@@ -410,7 +551,6 @@ Türkçe dili kurallarına, sokak/günlük konuşma doğallığına ve senaryo r
         }
       }
 
-      // Infer suggested element type
       let suggestedType: ElementType = 'action';
       if (focusedElement) {
         suggestedType = focusedElement.type;
@@ -443,53 +583,43 @@ Türkçe dili kurallarına, sokak/günlük konuşma doğallığına ve senaryo r
 
   if (!isOpen) return null;
 
-  const bgClass = theme === 'dark' ? 'bg-[#1a1f25] border-[#2d3640] text-slate-200' : 'bg-[#FFFFF0] border-[#c8bea8] text-slate-900';
+  const bgClass = theme === 'dark' ? 'bg-[#1a1f25] border-[#2d3640] text-slate-200' : 'bg-[#fcfaf7] border-[#c8bea8] text-slate-900';
   const headerBg = theme === 'dark' ? 'bg-[#20272e] border-[#2d3640]' : 'bg-[#e8e0d5] border-[#c8bea8]';
   const cardBg = theme === 'dark' ? 'bg-[#252c33] border-[#2d3640]' : 'bg-[#f4efe4] border-[#c8bea8]';
   const inputClass = theme === 'dark' ? 'bg-[#20272e] border-[#2d3640] text-white placeholder-slate-500 focus:border-[#6ba3e8]' : 'bg-white border-[#c8bea8] text-slate-900 placeholder-slate-500 focus:border-blue-600';
 
-  const quickPrompts = [
-    { label: '💬 Diyalog Alternatifi', prompt: 'Seçili diyalog için 3 farklı duygu tonunda (daha sert, daha alaycı, daha kırılgan) alternatif yaz.' },
-    { label: '🎬 Sahne Aksiyonu', prompt: 'Bu sahnenin atmosferini, görsel detaylarını ve karakter hareketlerini sinematik bir dille genişlet.' },
-    { label: '💡 Sonraki Sahne Fikri', prompt: 'Bu sahneden sonra gelebilecek, hikayenin gerilimini ve merak duygusunu artıracak 2 farklı sahne fikri ver.' },
-    { label: '🎭 Karakter Derinleştirme', prompt: 'Karakterin bu andaki alt metnini (subtext) ve gizli motivasyonunu ortaya çıkaran bir replik/eylem öner.' },
-    { label: '🩺 Script Doctor İncelemesi', prompt: 'Senaryonun son bölümünü tempo, klişeler ve diyalog doğallığı açısından incele ve 3 somut öneri ver.' },
-    { label: '⚔️ Çatışma & Gerilim Artır', prompt: 'Bu sahnedeki diyaloga çatışma ve yüksek gerilim katarak yeniden yaz.' }
-  ];
-
   return (
-    <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/60 backdrop-blur-xs p-3 sm:p-6 animate-in fade-in duration-200">
-      <div className={`flex flex-col w-full max-w-4xl h-[90vh] max-h-[850px] rounded-2xl shadow-2xl border overflow-hidden ${bgClass}`}>
+    <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/60 backdrop-blur-xs p-4 animate-in fade-in duration-150">
+      <div className={`w-full max-w-2xl h-[85vh] flex flex-col rounded-2xl shadow-2xl border overflow-hidden select-none ${bgClass}`}>
         
         {/* Header */}
-        <div className={`p-4 border-b flex items-center justify-between shrink-0 select-none ${headerBg}`}>
-          <div className="flex items-center gap-3">
-            <div className="p-2 rounded-xl bg-gradient-to-tr from-blue-600 to-indigo-500 text-white shadow-md">
-              <Sparkles size={20} className="animate-pulse" />
+        <div className={`p-3.5 border-b flex items-center justify-between shrink-0 ${headerBg}`}>
+          <div className="flex items-center gap-2.5">
+            <div className="p-1.5 rounded-lg bg-gradient-to-tr from-blue-600 to-indigo-500 text-white shadow-xs">
+              <Sparkles size={18} className="animate-pulse" />
             </div>
             <div>
-              <div className="flex items-center gap-2">
-                <h2 className="text-base font-bold tracking-tight">Yapay Zeka Senaryo Asistanı</h2>
-                <span className="text-[10px] uppercase font-bold tracking-wider px-2 py-0.5 rounded-full bg-blue-500/15 text-blue-700 dark:text-[#6ba3e8]">
-                  {PROVIDER_NAMES[provider]} • {selectedModel}
+              <div className="flex items-center gap-1.5">
+                <h2 className="text-sm font-bold tracking-tight">Yapay Zeka Senaryo Asistanı</h2>
+                <span className="text-[10px] uppercase font-bold tracking-wider px-2 py-0.5 rounded-md bg-blue-500/15 text-blue-700 dark:text-[#6ba3e8]">
+                  {PROVIDER_NAMES[provider].split(' ')[0]}
                 </span>
               </div>
-              <p className="text-xs opacity-70">Sahneler, diyaloglar ve hikaye akışı için çok modelli senaryo asistanı</p>
+              <p className="text-xs opacity-60">Kredi tasarruflu sahne ve replik odaklı yapay zeka</p>
             </div>
           </div>
 
           <div className="flex items-center gap-1.5">
             <button
               onClick={() => setIsSettingsOpen(!isSettingsOpen)}
-              className={`p-2 rounded-xl border flex items-center gap-1.5 text-xs font-semibold transition-all ${
+              className={`p-2 rounded-xl border text-xs font-medium transition-all ${
                 isSettingsOpen 
                   ? (theme === 'dark' ? 'bg-[#6ba3e8] text-slate-950 border-[#6ba3e8]' : 'bg-blue-700 text-white border-blue-700')
                   : (theme === 'dark' ? 'border-slate-700 hover:bg-slate-800 text-slate-300' : 'border-[#c8bea8] hover:bg-[#dfd7ca] text-slate-800')
               }`}
-              title="Model ve API Anahtarı Ayarları"
+              title="Model ve API Ayarları"
             >
               <Settings2 size={16} />
-              <span className="hidden sm:inline">Model Ayarları</span>
             </button>
 
             <button
@@ -499,66 +629,56 @@ Türkçe dili kurallarına, sokak/günlük konuşma doğallığına ve senaryo r
                   safeStorage.removeItem('scriptHive_ai_messages');
                 }
               }}
-              className={`p-2 rounded-xl border border-transparent hover:bg-black/5 dark:hover:bg-white/5 opacity-60 hover:opacity-100 transition-all`}
+              className="p-2 rounded-xl opacity-60 hover:opacity-100 hover:bg-black/5 dark:hover:bg-white/5 transition-all"
               title="Sohbeti Temizle"
             >
-              <Trash2 size={17} />
+              <Trash2 size={16} />
             </button>
 
             <button
               onClick={onClose}
-              className="p-2 rounded-xl border border-transparent hover:bg-black/5 dark:hover:bg-white/5 opacity-70 hover:opacity-100 transition-all"
+              className="p-2 rounded-xl opacity-70 hover:opacity-100 hover:bg-black/5 dark:hover:bg-white/5 transition-all"
               title="Kapat"
             >
-              <X size={20} />
+              <X size={18} />
             </button>
           </div>
         </div>
 
-        {/* Settings Panel (Collapsible) */}
+        {/* Settings Pane */}
         {isSettingsOpen && (
-          <div className={`p-4 border-b shrink-0 animate-in slide-in-from-top-2 duration-200 space-y-4 ${cardBg}`}>
+          <div className={`p-4 border-b shrink-0 space-y-3.5 animate-in slide-in-from-top-2 duration-200 text-xs ${cardBg}`}>
             <div className="flex items-center justify-between">
-              <div className="flex items-center gap-2 font-bold text-sm">
-                <ShieldCheck size={17} className="text-emerald-500" />
-                <span>Yapay Zeka Servisi & Model Seçimi</span>
-              </div>
-              <button 
-                onClick={() => setIsSettingsOpen(false)}
-                className="text-xs opacity-60 hover:opacity-100 underline"
-              >
-                Paneli Gizle
+              <span className="font-bold text-sm flex items-center gap-1.5">
+                <ShieldCheck size={16} className="text-emerald-500" /> Sağlayıcı & Model Ayarları
+              </span>
+              <button onClick={() => setIsSettingsOpen(false)} className="text-xs opacity-60 hover:opacity-100 underline">
+                Kapat
               </button>
             </div>
 
-            {/* Provider Tabs */}
-            <div className="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-7 gap-1.5">
+            <div className="grid grid-cols-4 gap-1.5">
               {(Object.keys(PROVIDER_NAMES) as AiProvider[]).map((pKey) => {
                 const isSelected = provider === pKey;
                 return (
                   <button
                     key={pKey}
                     onClick={() => handleProviderChange(pKey)}
-                    className={`px-2.5 py-1.5 rounded-lg text-xs font-semibold transition-all border ${
+                    className={`px-2 py-1.5 rounded-lg text-xs font-semibold border truncate transition-all ${
                       isSelected
-                        ? (theme === 'dark' ? 'bg-[#6ba3e8] border-[#6ba3e8] text-slate-950 font-bold shadow-xs' : 'bg-blue-700 border-blue-700 text-white font-bold shadow-xs')
+                        ? (theme === 'dark' ? 'bg-[#6ba3e8] border-[#6ba3e8] text-slate-950 font-bold' : 'bg-blue-700 border-blue-700 text-white font-bold')
                         : (theme === 'dark' ? 'border-slate-700 bg-slate-800/40 text-slate-300 hover:bg-slate-800' : 'border-[#c8bea8] bg-white/70 text-slate-800 hover:bg-white')
                     }`}
                   >
-                    {PROVIDER_NAMES[pKey].split(' ')[0]}
+                    {PROVIDER_NAMES[pKey]}
                   </button>
                 );
               })}
             </div>
 
-            {/* Model & Key Inputs */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-3 pt-1">
-              {/* Model Dropdown */}
+            <div className="grid grid-cols-2 gap-3">
               <div className="space-y-1">
-                <label className="text-xs font-semibold opacity-80 flex items-center justify-between">
-                  <span>Model</span>
-                  <span className="text-[11px] opacity-60">{PROVIDER_NAMES[provider]}</span>
-                </label>
+                <span className="text-xs opacity-75 font-medium">Model</span>
                 {provider !== 'custom' ? (
                   <select
                     value={selectedModel}
@@ -576,88 +696,200 @@ Türkçe dili kurallarına, sokak/günlük konuşma doğallığına ve senaryo r
                     type="text"
                     value={apiKeys.customModel || 'llama3'}
                     onChange={(e) => handleKeyChange('customModel', e.target.value)}
-                    placeholder="Örn: llama3, mistral, qwen2.5"
+                    placeholder="Model adı: llama3, mistral..."
                     className={`w-full p-2 rounded-xl text-xs outline-none border ${inputClass}`}
                   />
                 )}
               </div>
 
-              {/* API Key Input */}
               <div className="space-y-1">
-                <label className="text-xs font-semibold opacity-80 flex items-center justify-between">
-                  <span>{provider === 'custom' ? 'Özel Endpoint URL' : `${PROVIDER_NAMES[provider]} API Anahtarı`}</span>
+                <div className="flex justify-between text-xs opacity-75 font-medium">
+                  <span>API Anahtarı</span>
                   {provider === 'gemini' && (
-                    <a 
-                      href="https://aistudio.google.com/app/apikey" 
-                      target="_blank" 
-                      rel="noreferrer" 
-                      className="text-[11px] text-blue-600 dark:text-[#6ba3e8] hover:underline"
-                    >
-                      Ücretsiz Anahtar Al ↗
+                    <a href="https://aistudio.google.com/app/apikey" target="_blank" rel="noreferrer" className="text-blue-600 dark:text-[#6ba3e8] hover:underline">
+                      Ücretsiz Al ↗
                     </a>
                   )}
-                  {provider === 'openai' && (
-                    <a 
-                      href="https://platform.openai.com/api-keys" 
-                      target="_blank" 
-                      rel="noreferrer" 
-                      className="text-[11px] text-blue-600 dark:text-[#6ba3e8] hover:underline"
-                    >
-                      API Key Al ↗
-                    </a>
-                  )}
-                  {provider === 'claude' && (
-                    <a 
-                      href="https://console.anthropic.com/settings/keys" 
-                      target="_blank" 
-                      rel="noreferrer" 
-                      className="text-[11px] text-blue-600 dark:text-[#6ba3e8] hover:underline"
-                    >
-                      API Key Al ↗
-                    </a>
-                  )}
-                </label>
-                {provider !== 'custom' ? (
-                  <div className="relative flex items-center">
-                    <input
-                      type={showKeyText ? 'text' : 'password'}
-                      value={apiKeys[provider] || ''}
-                      onChange={(e) => handleKeyChange(provider, e.target.value)}
-                      placeholder={`${PROVIDER_NAMES[provider]} API anahtarınızı girin...`}
-                      className={`w-full p-2 pr-9 rounded-xl text-xs font-mono outline-none border ${inputClass}`}
-                    />
-                    <button
-                      type="button"
-                      onClick={() => setShowKeyText(!showKeyText)}
-                      className="absolute right-2.5 opacity-50 hover:opacity-100"
-                      title={showKeyText ? "Gizle" : "Göster"}
-                    >
-                      {showKeyText ? <EyeOff size={15} /> : <Eye size={15} />}
-                    </button>
-                  </div>
-                ) : (
+                </div>
+                <div className="relative flex items-center">
                   <input
-                    type="text"
-                    value={apiKeys.customUrl || 'http://localhost:11434/v1/chat/completions'}
-                    onChange={(e) => handleKeyChange('customUrl', e.target.value)}
-                    placeholder="http://localhost:11434/v1/chat/completions"
-                    className={`w-full p-2 rounded-xl text-xs font-mono outline-none border ${inputClass}`}
+                    type={showKeyText ? 'text' : 'password'}
+                    value={apiKeys[provider] || ''}
+                    onChange={(e) => handleKeyChange(provider, e.target.value)}
+                    placeholder="API anahtarınızı yapıştırın..."
+                    className={`w-full p-2 pr-8 rounded-xl text-xs font-mono outline-none border ${inputClass}`}
                   />
-                )}
+                  <button
+                    type="button"
+                    onClick={() => setShowKeyText(!showKeyText)}
+                    className="absolute right-2.5 opacity-50 hover:opacity-100"
+                  >
+                    {showKeyText ? <EyeOff size={14} /> : <Eye size={14} />}
+                  </button>
+                </div>
               </div>
             </div>
           </div>
         )}
 
-        {/* Chat Message List */}
-        <div className="flex-1 overflow-y-auto p-4 sm:p-6 space-y-4">
+        {/* Smart Scope Bar */}
+        <div className={`p-3 border-b shrink-0 space-y-2 text-xs select-none ${cardBg}`}>
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-1.5">
+              <span className="text-[11px] font-bold uppercase tracking-wider opacity-60">Kapsam:</span>
+              {[
+                { id: 'scene', label: '🎬 Sahne', desc: 'Yalnızca seçilen sahneyi okur' },
+                { id: 'replik', label: '💬 Replik', desc: 'Yalnızca seçili satırı okur' },
+                { id: 'recent', label: '📑 Son 15', desc: 'Son 15 satırı okur' },
+                { id: 'none', label: '❓ Yalnız Soru', desc: 'Senaryo metni göndermez' },
+              ].map((sc) => {
+                const isSelected = contextScope === sc.id;
+                return (
+                  <button
+                    key={sc.id}
+                    onClick={() => setContextScope(sc.id as ContextScope)}
+                    className={`px-2.5 py-1 rounded-lg text-xs font-semibold transition-all border ${
+                      isSelected
+                        ? (theme === 'dark' ? 'bg-[#6ba3e8] border-[#6ba3e8] text-slate-950 shadow-xs' : 'bg-blue-700 border-blue-700 text-white shadow-xs')
+                        : (theme === 'dark' ? 'border-slate-700 bg-slate-800/40 text-slate-400 hover:text-slate-200' : 'border-[#c8bea8] bg-white/60 text-slate-700 hover:text-black')
+                    }`}
+                    title={sc.desc}
+                  >
+                    {sc.label}
+                  </button>
+                );
+              })}
+            </div>
+
+            <div className="flex items-center gap-1.5 font-mono text-xs opacity-75" title="Gönderilecek tahmini token">
+              <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse inline-block" />
+              <span>~{estimatedTokens} Token</span>
+            </div>
+          </div>
+
+          {/* Scene Dropdown */}
+          <div className="flex items-center gap-2">
+            <Clapperboard size={16} className="text-blue-500 shrink-0" />
+            <div className="flex-1 min-w-0">
+              {allScenes.length > 0 ? (
+                <select
+                  value={activeScene?.sceneNumber || 1}
+                  onChange={(e) => {
+                    setSelectedSceneNum(e.target.value);
+                    setContextScope('scene');
+                  }}
+                  className={`w-full py-1.5 px-2.5 rounded-xl text-xs font-semibold outline-none border cursor-pointer truncate ${inputClass}`}
+                >
+                  {allScenes.map((sc) => (
+                    <option key={sc.sceneNumber} value={sc.sceneNumber} className="bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100">
+                      Sahne {sc.sceneNumber}: {sc.heading} ({sc.elements.length} blok)
+                    </option>
+                  ))}
+                </select>
+              ) : (
+                <span className="opacity-60 text-xs italic">Henüz sahne başlığı eklenmedi</span>
+              )}
+            </div>
+          </div>
+
+          {/* Replik Quick Actions */}
+          {focusedElement && focusedPlain && (
+            <div className={`p-2.5 rounded-xl border flex flex-col gap-1.5 ${theme === 'dark' ? 'bg-[#1f262e] border-slate-700/80' : 'bg-white/80 border-[#c8bea8]'}`}>
+              <div className="flex items-center justify-between text-xs">
+                <span className="font-bold flex items-center gap-1 opacity-80 uppercase tracking-wider">
+                  <MessageSquare size={13} className="text-amber-500" />
+                  Seçili {focusedElement.type === 'dialogue' ? 'Diyalog' : focusedElement.type === 'character' ? 'Karakter' : 'Satır'}
+                </span>
+                <button 
+                  onClick={() => setContextScope('replik')}
+                  className={`text-[10px] px-2 py-0.5 rounded font-bold transition-colors ${contextScope === 'replik' ? 'bg-amber-500 text-slate-950' : 'opacity-60 hover:opacity-100'}`}
+                >
+                  {contextScope === 'replik' ? '✓ Odakta' : 'Yalnız Bunu Oku'}
+                </button>
+              </div>
+              <p className="text-xs italic line-clamp-2 opacity-90 font-mono">
+                "{focusedPlain}"
+              </p>
+              
+              <div className="flex items-center gap-2 pt-0.5 overflow-x-auto no-scrollbar">
+                <button
+                  onClick={() => handleSendMessage('Bu replik için farklı duygu tonlarında 3 alternatif diyalog yaz.', 'replik')}
+                  disabled={isLoading}
+                  className={`px-2.5 py-1 rounded-lg text-xs font-semibold border flex items-center gap-1 shrink-0 transition-all ${
+                    theme === 'dark' ? 'border-amber-500/40 text-amber-300 hover:bg-amber-500/10' : 'border-amber-600/40 text-amber-900 hover:bg-amber-50'
+                  }`}
+                >
+                  <Sparkle size={12} /> 3 Alternatif Replik
+                </button>
+
+                <button
+                  onClick={() => handleSendMessage('Bu repliğin alt metnini güçlendirerek karakterin gerçek hissini hissettiren bir alternatif yaz.', 'replik')}
+                  disabled={isLoading}
+                  className={`px-2.5 py-1 rounded-lg text-xs font-medium border shrink-0 transition-all ${
+                    theme === 'dark' ? 'border-slate-700 text-slate-300 hover:bg-slate-800' : 'border-[#c8bea8] text-slate-800 hover:bg-white'
+                  }`}
+                >
+                  Alt Metin Ekle
+                </button>
+
+                <button
+                  onClick={() => handleSendMessage('Bu repliği günlük konuşma doğallığına kavuştur.', 'replik')}
+                  disabled={isLoading}
+                  className={`px-2.5 py-1 rounded-lg text-xs font-medium border shrink-0 transition-all ${
+                    theme === 'dark' ? 'border-slate-700 text-slate-300 hover:bg-slate-800' : 'border-[#c8bea8] text-slate-800 hover:bg-white'
+                  }`}
+                >
+                  Doğallaştır
+                </button>
+              </div>
+            </div>
+          )}
+
+          {/* Scene Quick Actions */}
+          {activeScene && (
+            <div className="flex items-center gap-2 overflow-x-auto no-scrollbar pt-0.5">
+              <button
+                onClick={() => handleSendMessage(`Sahne ${activeScene.sceneNumber} (${activeScene.heading}) sahnesini incele ve 3 somut iyileştirme önerisi ver.`, 'scene')}
+                disabled={isLoading}
+                className={`px-2.5 py-1 rounded-lg text-xs font-semibold border flex items-center gap-1 shrink-0 transition-all ${
+                  theme === 'dark' ? 'bg-blue-600/20 border-blue-500/40 text-blue-300 hover:bg-blue-600/30' : 'bg-blue-50 border-blue-300 text-blue-800 hover:bg-blue-100'
+                }`}
+              >
+                <Zap size={12} /> Sahne {activeScene.sceneNumber}'i İncele
+              </button>
+
+              <button
+                onClick={() => handleSendMessage(`Sahne ${activeScene.sceneNumber} sahnesinden sonra gelebilecek 2 farklı sonraki sahne fikri öner.`, 'scene')}
+                disabled={isLoading}
+                className={`px-2.5 py-1 rounded-lg text-xs font-medium border shrink-0 transition-all ${
+                  theme === 'dark' ? 'border-slate-700 text-slate-300 hover:bg-slate-800' : 'border-[#c8bea8] text-slate-800 hover:bg-white'
+                }`}
+              >
+                Sonraki Sahne Öner
+              </button>
+
+              <button
+                onClick={() => handleSendMessage(`Sahne ${activeScene.sceneNumber} sahnesindeki dramatik gerilimi ve merak duygusunu artır.`, 'scene')}
+                disabled={isLoading}
+                className={`px-2.5 py-1 rounded-lg text-xs font-medium border shrink-0 transition-all ${
+                  theme === 'dark' ? 'border-slate-700 text-slate-300 hover:bg-slate-800' : 'border-[#c8bea8] text-slate-800 hover:bg-white'
+                }`}
+              >
+                Çatışmayı Artır
+              </button>
+            </div>
+          )}
+        </div>
+
+        {/* Chat Messages */}
+        <div className="flex-1 overflow-y-auto p-4 space-y-4 select-text">
           {messages.map((msg) => (
             <div
               key={msg.id}
               className={`flex flex-col ${msg.sender === 'user' ? 'items-end' : 'items-start'}`}
             >
               <div
-                className={`max-w-[85%] rounded-2xl p-3.5 sm:p-4 text-xs sm:text-sm leading-relaxed whitespace-pre-wrap shadow-sm border ${
+                className={`max-w-[88%] rounded-2xl p-3.5 text-xs leading-relaxed whitespace-pre-wrap shadow-xs border ${
                   msg.sender === 'user'
                     ? (theme === 'dark' ? 'bg-blue-600 border-blue-500 text-white rounded-br-none' : 'bg-blue-600 border-blue-700 text-white rounded-br-none')
                     : (theme === 'dark' ? 'bg-[#20272e] border-slate-700/80 text-slate-100 rounded-bl-none' : 'bg-[#FFFFF0] border-[#c8bea8] text-slate-900 rounded-bl-none')
@@ -667,47 +899,38 @@ Türkçe dili kurallarına, sokak/günlük konuşma doğallığına ve senaryo r
               </div>
 
               {msg.sender === 'ai' && msg.id !== 'welcome' && !msg.text.startsWith('⚠️') && (
-                <div className="flex items-center gap-1.5 mt-1.5">
+                <div className="flex items-center gap-2 mt-2 select-none">
                   <button
                     onClick={() => handleCopy(msg.id, msg.text)}
-                    className={`px-2.5 py-1 rounded-lg border text-[11px] font-medium flex items-center gap-1 transition-all ${
+                    className={`px-2.5 py-1 rounded-lg border text-xs font-medium flex items-center gap-1 transition-all ${
                       theme === 'dark' ? 'border-slate-700 hover:bg-slate-800 text-slate-300' : 'border-[#c8bea8] hover:bg-[#dfd7ca] text-slate-700'
                     }`}
-                    title="Panoya Kopyala"
                   >
                     {copiedId === msg.id ? <Check size={12} className="text-emerald-500" /> : <Copy size={12} />}
                     {copiedId === msg.id ? 'Kopyalandı' : 'Kopyala'}
                   </button>
 
-                  <button
-                    onClick={() => {
-                      onInsertElement(msg.suggestedType || 'action', msg.text);
-                      onClose();
-                    }}
-                    className={`px-2.5 py-1 rounded-lg text-[11px] font-semibold flex items-center gap-1 transition-all shadow-xs ${
-                      theme === 'dark' ? 'bg-blue-600 hover:bg-blue-500 text-white' : 'bg-blue-700 hover:bg-blue-800 text-white'
-                    }`}
-                    title="Senaryoda geçerli satırın hemen altına yeni blok olarak ekler"
-                  >
-                    <Plus size={12} />
-                    Senaryoya Ekle
-                  </button>
-
                   {focusedElement && (
                     <button
-                      onClick={() => {
-                        onUpdateFocusedElement(msg.text);
-                        onClose();
-                      }}
-                      className={`px-2.5 py-1 rounded-lg border text-[11px] font-semibold flex items-center gap-1 transition-all ${
+                      onClick={() => onUpdateFocusedElement(msg.text)}
+                      className={`px-2.5 py-1 rounded-lg border text-xs font-semibold flex items-center gap-1 transition-all ${
                         theme === 'dark' ? 'border-amber-600/40 text-amber-300 hover:bg-amber-600/20' : 'border-amber-500 text-amber-900 hover:bg-amber-100'
                       }`}
-                      title="Şu an seçili olan satırın metnini bu yanıtla değiştirir"
                     >
                       <ArrowRight size={12} />
                       Seçili Satırı Değiştir
                     </button>
                   )}
+
+                  <button
+                    onClick={() => onInsertElement(msg.suggestedType || 'action', msg.text)}
+                    className={`px-2.5 py-1 rounded-lg text-xs font-semibold flex items-center gap-1 transition-all shadow-xs ${
+                      theme === 'dark' ? 'bg-blue-600 hover:bg-blue-500 text-white' : 'bg-blue-700 hover:bg-blue-800 text-white'
+                    }`}
+                  >
+                    <Plus size={12} />
+                    Senaryoya Ekle
+                  </button>
                 </div>
               )}
             </div>
@@ -715,35 +938,30 @@ Türkçe dili kurallarına, sokak/günlük konuşma doğallığına ve senaryo r
 
           {isLoading && (
             <div className="flex items-center gap-2 text-xs font-semibold opacity-70 p-2">
-              <RefreshCw size={15} className="animate-spin text-blue-500" />
-              <span>{PROVIDER_NAMES[provider]} ({selectedModel}) senaryonuzu inceliyor ve yazıyor...</span>
+              <RefreshCw size={14} className="animate-spin text-blue-500" />
+              <span>{PROVIDER_NAMES[provider]} ({selectedModel}) odaklı analiz yapıyor...</span>
             </div>
           )}
 
           <div ref={chatEndRef} />
         </div>
 
-        {/* Quick Prompts Bar */}
-        <div className={`px-4 py-2 border-t overflow-x-auto flex items-center gap-1.5 shrink-0 no-scrollbar ${cardBg}`}>
-          <span className="text-[11px] font-bold opacity-60 shrink-0">Hızlı İstekler:</span>
-          {quickPrompts.map((qp, idx) => (
-            <button
-              key={idx}
-              onClick={() => handleSendMessage(qp.prompt)}
-              disabled={isLoading}
-              className={`px-2.5 py-1 rounded-lg text-xs font-medium shrink-0 border transition-all whitespace-nowrap ${
-                theme === 'dark' 
-                  ? 'border-slate-700 bg-[#20272e] text-slate-300 hover:text-white hover:border-slate-500' 
-                  : 'border-[#c8bea8] bg-white text-slate-800 hover:bg-[#e8e0d5]'
-              }`}
-            >
-              {qp.label}
-            </button>
-          ))}
-        </div>
+        {/* Live Auto-Intent Detection Badge */}
+        {(detectedSceneFromPrompt || detectedReplikIntent) && (
+          <div className={`px-4 py-1.5 text-xs flex items-center gap-2 border-t font-semibold ${theme === 'dark' ? 'bg-blue-950/40 text-blue-300 border-blue-900/50' : 'bg-blue-50 text-blue-800 border-blue-200'}`}>
+            <Target size={14} className="text-blue-500 shrink-0" />
+            <span>
+              {detectedSceneFromPrompt ? (
+                <>İsteğiniz algılandı: <strong>Yalnızca Sahne {detectedSceneFromPrompt.sceneNumber}</strong> okunacak (~{Math.round((detectedSceneFromPrompt.elements.map(e => stripHtml(e.content)).join(' ').split(/\s+/).length + 80) * 1.3)} Token)</>
+              ) : (
+                <>İsteğiniz algılandı: <strong>Yalnızca Seçili Replik</strong> okunacak (~{Math.round((focusedPlain.split(/\s+/).length + 80) * 1.3)} Token)</>
+              )}
+            </span>
+          </div>
+        )}
 
-        {/* Input Bar */}
-        <div className={`p-3 sm:p-4 border-t flex items-end gap-2 shrink-0 ${headerBg}`}>
+        {/* Input Box */}
+        <div className={`p-3.5 border-t flex items-end gap-2.5 shrink-0 ${headerBg}`}>
           <div className="flex-1 relative">
             <textarea
               rows={2}
@@ -755,15 +973,21 @@ Türkçe dili kurallarına, sokak/günlük konuşma doğallığına ve senaryo r
                   handleSendMessage();
                 }
               }}
-              placeholder="Yapay zekaya senaryonuzla ilgili dilediğinizi sorun veya yazmasını isteyin... (Göndermek için Enter, yeni satır için Shift+Enter)"
-              className={`w-full p-2.5 rounded-xl text-xs sm:text-sm outline-none resize-none border ${inputClass}`}
+              placeholder={
+                contextScope === 'replik'
+                  ? "Seçili replik için bir istek yazın... (Örn: 'Daha vurucu yap')"
+                  : contextScope === 'scene'
+                  ? `Sahne ${activeScene?.sceneNumber || 1} için istek yazın... (Örn: '12. sahneyi oku ve devamını öner')`
+                  : "Yapay zekaya sorun veya sahne/replik numarası belirtin..."
+              }
+              className={`w-full p-2.5 rounded-xl text-xs outline-none resize-none border ${inputClass}`}
             />
           </div>
 
           <button
             onClick={() => handleSendMessage()}
             disabled={isLoading || !inputPrompt.trim()}
-            className={`p-3 rounded-xl font-bold transition-all shrink-0 flex items-center justify-center shadow-md ${
+            className={`p-3 rounded-xl font-bold transition-all shrink-0 flex items-center justify-center shadow-sm ${
               isLoading || !inputPrompt.trim()
                 ? 'opacity-40 cursor-not-allowed bg-slate-500 text-white'
                 : 'bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white active:scale-95'

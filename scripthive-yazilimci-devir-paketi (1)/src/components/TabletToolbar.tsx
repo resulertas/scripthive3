@@ -331,17 +331,8 @@ export default function TabletToolbar({
         )}
       </div>
 
-      {/* 3. CREATIVE & STORY SUITE (12 items in 2x6 grid) */}
+      {/* 3. CREATIVE & STORY SUITE */}
       <div className={`flex md:grid md:grid-cols-2 justify-center gap-1 p-1 md:p-1.5 shrink-0 rounded-xl w-max md:w-full transition-all shadow-xs ${cardBg}`}>
-        {/* AI Assistant */}
-        <button 
-          onClick={onOpenAi} 
-          className={`flex items-center justify-center p-1.5 md:p-2 shrink-0 rounded-lg ${theme === 'dark' ? 'text-blue-400 bg-blue-500/10' : 'text-blue-600 bg-blue-50'} active:scale-95 ${btnHover} transition-all`}
-          title="Yapay Zeka Asistanı"
-        >
-          <Sparkles size={17} className="animate-pulse" />
-        </button>
-
         {/* Çift Panel (Companion) */}
         {onToggleSplitScreen && (
           <button 

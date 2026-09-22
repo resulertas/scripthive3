@@ -1503,9 +1503,11 @@ export default function StoryBeatsModal({
 
   if (!isOpen) return null;
 
-  const bgModal = theme === 'dark' ? 'bg-[#181c24] text-slate-100 border-[#2a3441]' : 'bg-[#FFFFF0] text-slate-800 border-[#c8bea8]';
-  const sidebarBg = theme === 'dark' ? 'bg-[#12161c] border-[#222a35]' : 'bg-[#f4eee1] border-[#dfd6c5]';
-  const cardBg = theme === 'dark' ? 'bg-[#202732] border-[#2d3847]' : 'bg-white border-[#e0d6c3]';
+  const bgModal = theme === 'dark' ? 'bg-[#1a1f25] text-slate-100 border-[#2d3640]/70' : 'bg-[#fcfbf8] text-slate-800 border-[#c8bea8]/70';
+  const sidebarBg = theme === 'dark' ? 'bg-[#15191f] border-[#2d3640]/70' : 'bg-[#f4eee4] border-[#c8bea8]/70';
+  const cardBg = theme === 'dark' ? 'bg-[#20272e] border-[#2d3640]/70' : 'bg-white border-[#c8bea8]/70';
+  const headerBg = theme === 'dark' ? 'bg-[#1a1f25] border-[#2d3640]/70' : 'bg-[#e8e0d5] border-[#c8bea8]/70';
+  const subHeaderBg = theme === 'dark' ? 'bg-[#15191f] border-[#2d3640]/70' : 'bg-[#f4eee4] border-[#c8bea8]/70';
 
   return (
     <AnimatePresence>
@@ -1521,17 +1523,17 @@ export default function StoryBeatsModal({
           {/* ============================================================ */}
           {/* TOP GLOBAL HEADER */}
           {/* ============================================================ */}
-          <div className={`px-5 py-3 border-b flex items-center justify-between gap-3 shrink-0 ${theme === 'dark' ? 'bg-[#141820] border-[#222a35]' : 'bg-[#ece4d6] border-[#dfd6c5]'}`}>
+          <div className={`px-5 py-3 border-b flex items-center justify-between gap-3 shrink-0 ${headerBg}`}>
             {/* Left: Branding & Current Context */}
             <div className="flex items-center gap-3 min-w-0">
-              <div className={`p-2 rounded-xl shrink-0 ${theme === 'dark' ? 'bg-[#6ba3e8]/15 text-[#6ba3e8]' : 'bg-blue-600/15 text-blue-700'}`}>
+              <div className={`p-2 rounded-xl shrink-0 ${theme === 'dark' ? 'bg-[#6ba3e8]/15 text-[#6ba3e8] border border-[#6ba3e8]/30' : 'bg-blue-600/15 text-blue-700 border border-blue-200'}`}>
                 <Compass size={22} />
               </div>
               <div className="min-w-0">
                 <div className="flex items-center gap-2">
                   <h2 className="text-sm sm:text-base font-bold truncate">Hikaye Geliştirici & Şablonlar</h2>
                   <span className={`text-[10px] font-mono px-2 py-0.5 rounded-full font-bold shrink-0 border ${
-                    theme === 'dark' ? 'bg-slate-800 text-slate-300 border-slate-700' : 'bg-white text-slate-700 border-[#c8bea8]'
+                    theme === 'dark' ? 'bg-[#15191f] text-slate-300 border-[#2d3640]' : 'bg-white text-slate-700 border-[#c8bea8]'
                   }`}>
                     {activeTemplate.category === 'film' ? '🎬 FİLM' : activeTemplate.category === 'series' ? '📺 DİZİ / TV' : '🌐 ON-DEMAND'}
                   </span>
@@ -1545,10 +1547,10 @@ export default function StoryBeatsModal({
             {/* Right: View Switcher, Targets, Exports, Close */}
             <div className="flex items-center gap-2 shrink-0">
               {/* Main View Toggle Buttons */}
-              <div className="flex items-center p-0.5 rounded-lg border border-inherit bg-black/5 dark:bg-white/5">
+              <div className="flex items-center p-0.5 rounded-xl border border-inherit bg-black/5 dark:bg-white/5">
                 <button
                   onClick={() => setViewMode('catalog')}
-                  className={`px-3 py-1 rounded-md text-xs font-bold flex items-center gap-1.5 transition-all ${
+                  className={`px-3 py-1 rounded-lg text-xs font-bold flex items-center gap-1.5 transition-all ${
                     viewMode === 'catalog'
                       ? (theme === 'dark' ? 'bg-[#6ba3e8] text-slate-950 shadow-sm' : 'bg-blue-700 text-white shadow-sm')
                       : 'opacity-70 hover:opacity-100'
@@ -1559,7 +1561,7 @@ export default function StoryBeatsModal({
                 </button>
                 <button
                   onClick={() => setViewMode('editor')}
-                  className={`px-3 py-1 rounded-md text-xs font-bold flex items-center gap-1.5 transition-all ${
+                  className={`px-3 py-1 rounded-lg text-xs font-bold flex items-center gap-1.5 transition-all ${
                     viewMode === 'editor'
                       ? (theme === 'dark' ? 'bg-[#6ba3e8] text-slate-950 shadow-sm' : 'bg-blue-700 text-white shadow-sm')
                       : 'opacity-70 hover:opacity-100'
@@ -1572,7 +1574,7 @@ export default function StoryBeatsModal({
 
               {/* Target Pages (Only shown in editor or available everywhere) */}
               {viewMode === 'editor' && (
-                <div className="hidden md:flex items-center gap-1.5 px-2.5 py-1 rounded-lg border text-xs font-mono bg-black/5 dark:bg-white/5 border-inherit">
+                <div className="hidden md:flex items-center gap-1.5 px-2.5 py-1 rounded-xl border text-xs font-mono bg-black/5 dark:bg-white/5 border-inherit">
                   <Target size={13} className="opacity-70" />
                   <span className="opacity-75">Hedef:</span>
                   <input 
@@ -1596,8 +1598,8 @@ export default function StoryBeatsModal({
                 <div className="flex items-center gap-1">
                   <button
                     onClick={() => fileInputRef.current?.click()}
-                    className={`px-2 py-1 rounded-lg text-xs font-semibold flex items-center gap-1 border transition-all ${
-                      theme === 'dark' ? 'bg-slate-800 hover:bg-slate-700 border-slate-700' : 'bg-white hover:bg-slate-50 border-[#c8bea8]'
+                    className={`px-2 py-1 rounded-xl text-xs font-semibold flex items-center gap-1 border transition-all ${
+                      theme === 'dark' ? 'bg-[#20272e] hover:bg-[#2d3640] border-[#2d3640] text-slate-300' : 'bg-white hover:bg-[#f4eee4] border-[#c8bea8] text-slate-700'
                     }`}
                     title="Hikaye Planı İçe Aktar (.json)"
                   >
@@ -1607,8 +1609,8 @@ export default function StoryBeatsModal({
 
                   <button
                     onClick={handleExportMD}
-                    className={`px-2 py-1 rounded-lg text-xs font-semibold flex items-center gap-1 border transition-all ${
-                      theme === 'dark' ? 'bg-slate-800 hover:bg-slate-700 border-slate-700' : 'bg-white hover:bg-slate-50 border-[#c8bea8]'
+                    className={`px-2 py-1 rounded-xl text-xs font-semibold flex items-center gap-1 border transition-all ${
+                      theme === 'dark' ? 'bg-[#20272e] hover:bg-[#2d3640] border-[#2d3640] text-slate-300' : 'bg-white hover:bg-[#f4eee4] border-[#c8bea8] text-slate-700'
                     }`}
                     title="Markdown olarak indir (.md)"
                   >
@@ -1618,8 +1620,8 @@ export default function StoryBeatsModal({
 
                   <button
                     onClick={handleExportDOCX}
-                    className={`px-2 py-1 rounded-lg text-xs font-semibold flex items-center gap-1 border transition-all ${
-                      theme === 'dark' ? 'bg-slate-800 hover:bg-slate-700 border-slate-700' : 'bg-white hover:bg-slate-50 border-[#c8bea8]'
+                    className={`px-2 py-1 rounded-xl text-xs font-semibold flex items-center gap-1 border transition-all ${
+                      theme === 'dark' ? 'bg-[#20272e] hover:bg-[#2d3640] border-[#2d3640] text-slate-300' : 'bg-white hover:bg-[#f4eee4] border-[#c8bea8] text-slate-700'
                     }`}
                     title="Word belgesi olarak indir (.docx)"
                   >
@@ -1629,8 +1631,8 @@ export default function StoryBeatsModal({
 
                   <button
                     onClick={handleExportPDF}
-                    className={`px-2 py-1 rounded-lg text-xs font-semibold flex items-center gap-1 border transition-all ${
-                      theme === 'dark' ? 'bg-slate-800 hover:bg-slate-700 border-slate-700' : 'bg-white hover:bg-slate-50 border-[#c8bea8]'
+                    className={`px-2 py-1 rounded-xl text-xs font-semibold flex items-center gap-1 border transition-all ${
+                      theme === 'dark' ? 'bg-[#20272e] hover:bg-[#2d3640] border-[#2d3640] text-slate-300' : 'bg-white hover:bg-[#f4eee4] border-[#c8bea8] text-slate-700'
                     }`}
                     title="PDF tablosu olarak indir (.pdf)"
                   >
@@ -1643,7 +1645,7 @@ export default function StoryBeatsModal({
               {/* Close Button */}
               <button 
                 onClick={onClose}
-                className={`p-1.5 rounded-lg transition-colors ${theme === 'dark' ? 'hover:bg-[#2d3640] text-slate-400 hover:text-white' : 'hover:bg-[#dfd7ca] text-slate-600 hover:text-black'}`}
+                className={`p-1.5 rounded-xl transition-colors ${theme === 'dark' ? 'hover:bg-[#2d3640] text-slate-400 hover:text-white' : 'hover:bg-[#dfd7ca] text-slate-600 hover:text-black'}`}
                 title="Kapat"
               >
                 <X size={18} />
@@ -1657,7 +1659,7 @@ export default function StoryBeatsModal({
           {viewMode === 'catalog' && (
             <div className="flex-1 flex flex-col overflow-hidden">
               {/* TOP LEVEL 2 PRIMARY TABS */}
-              <div className={`p-3.5 border-b shrink-0 ${theme === 'dark' ? 'bg-[#12161c] border-[#222a35]' : 'bg-[#f7f2e8] border-[#dfd6c5]'}`}>
+              <div className={`p-3.5 border-b shrink-0 ${subHeaderBg}`}>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 max-w-4xl mx-auto">
                   {/* 1. SİNEMA FİLMİ ŞABLONLARI */}
                   <button
@@ -1667,15 +1669,15 @@ export default function StoryBeatsModal({
                     className={`px-4 py-2.5 rounded-xl border text-left transition-all flex items-center justify-between gap-3 ${
                       mainCategory === 'film'
                         ? (theme === 'dark' 
-                            ? 'bg-[#252c33] border-[#6ba3e8] text-[#6ba3e8] shadow-sm' 
-                            : 'bg-[#dfd7ca] border-blue-700 text-slate-950 shadow-sm')
+                            ? 'bg-[#20272e] border-[#6ba3e8] text-[#6ba3e8] shadow-sm' 
+                            : 'bg-white border-blue-700 text-slate-950 shadow-sm')
                         : (theme === 'dark'
-                            ? 'bg-[#181e28]/70 border-[#263140] hover:bg-[#1f2735] text-slate-300'
-                            : 'bg-white border-[#dfd6c5] hover:bg-[#fcfaf6] text-slate-700')
+                            ? 'bg-[#15191f]/80 border-[#2d3640]/60 hover:bg-[#20272e] text-slate-300'
+                            : 'bg-[#fcfbf8] border-[#c8bea8]/60 hover:bg-white text-slate-700')
                     }`}
                   >
                     <div className="flex items-center gap-3 min-w-0">
-                      <div className={`p-2 rounded-lg shrink-0 ${
+                      <div className={`p-2 rounded-xl shrink-0 ${
                         mainCategory === 'film'
                           ? (theme === 'dark' ? 'bg-[#6ba3e8] text-slate-950 font-bold' : 'bg-blue-700 text-white font-bold')
                           : (theme === 'dark' ? 'bg-slate-800 text-slate-400' : 'bg-slate-100 text-slate-600')
@@ -1709,15 +1711,15 @@ export default function StoryBeatsModal({
                     className={`px-4 py-2.5 rounded-xl border text-left transition-all flex items-center justify-between gap-3 ${
                       mainCategory === 'series'
                         ? (theme === 'dark' 
-                            ? 'bg-[#252c33] border-[#6ba3e8] text-[#6ba3e8] shadow-sm' 
-                            : 'bg-[#dfd7ca] border-blue-700 text-slate-950 shadow-sm')
+                            ? 'bg-[#20272e] border-[#6ba3e8] text-[#6ba3e8] shadow-sm' 
+                            : 'bg-white border-blue-700 text-slate-950 shadow-sm')
                         : (theme === 'dark'
-                            ? 'bg-[#181e28]/70 border-[#263140] hover:bg-[#1f2735] text-slate-300'
-                            : 'bg-white border-[#dfd6c5] hover:bg-[#fcfaf6] text-slate-700')
+                            ? 'bg-[#15191f]/80 border-[#2d3640]/60 hover:bg-[#20272e] text-slate-300'
+                            : 'bg-[#fcfbf8] border-[#c8bea8]/60 hover:bg-white text-slate-700')
                     }`}
                   >
                     <div className="flex items-center gap-3 min-w-0">
-                      <div className={`p-2 rounded-lg shrink-0 ${
+                      <div className={`p-2 rounded-xl shrink-0 ${
                         mainCategory === 'series'
                           ? (theme === 'dark' ? 'bg-[#6ba3e8] text-slate-950 font-bold' : 'bg-blue-700 text-white font-bold')
                           : (theme === 'dark' ? 'bg-slate-800 text-slate-400' : 'bg-slate-100 text-slate-600')
@@ -1746,13 +1748,13 @@ export default function StoryBeatsModal({
               </div>
 
               {/* SUB-FILTERS & SEARCH BAR */}
-              <div className={`px-5 py-2.5 border-b flex flex-wrap items-center justify-between gap-3 text-xs shrink-0 ${theme === 'dark' ? 'bg-[#141820] border-[#222a35]' : 'bg-[#ece4d6] border-[#dfd6c5]'}`}>
+              <div className={`px-5 py-2.5 border-b flex flex-wrap items-center justify-between gap-3 text-xs shrink-0 ${headerBg}`}>
                 {/* Secondary Sub-Category Filter (Only active when Dizi is selected) */}
                 {mainCategory === 'series' ? (
-                  <div className="flex items-center gap-1 p-0.5 rounded-lg border border-inherit bg-black/5 dark:bg-white/5">
+                  <div className="flex items-center gap-1 p-0.5 rounded-xl border border-inherit bg-black/5 dark:bg-white/5">
                     <button
                       onClick={() => setSeriesFilter('all')}
-                      className={`px-3 py-1 rounded-md font-bold transition-all ${
+                      className={`px-3 py-1 rounded-lg font-bold transition-all ${
                         seriesFilter === 'all'
                           ? (theme === 'dark' ? 'bg-[#6ba3e8] text-slate-950 shadow-sm' : 'bg-blue-700 text-white shadow-sm')
                           : 'opacity-70 hover:opacity-100'
@@ -1762,7 +1764,7 @@ export default function StoryBeatsModal({
                     </button>
                     <button
                       onClick={() => setSeriesFilter('broadcast')}
-                      className={`px-3 py-1 rounded-md font-bold flex items-center gap-1 transition-all ${
+                      className={`px-3 py-1 rounded-lg font-bold flex items-center gap-1 transition-all ${
                         seriesFilter === 'broadcast'
                           ? (theme === 'dark' ? 'bg-[#6ba3e8] text-slate-950 shadow-sm' : 'bg-blue-700 text-white shadow-sm')
                           : 'opacity-70 hover:opacity-100'
@@ -1773,7 +1775,7 @@ export default function StoryBeatsModal({
                     </button>
                     <button
                       onClick={() => setSeriesFilter('streaming')}
-                      className={`px-3 py-1 rounded-md font-bold flex items-center gap-1 transition-all ${
+                      className={`px-3 py-1 rounded-lg font-bold flex items-center gap-1 transition-all ${
                         seriesFilter === 'streaming'
                           ? (theme === 'dark' ? 'bg-[#6ba3e8] text-slate-950 shadow-sm' : 'bg-blue-700 text-white shadow-sm')
                           : 'opacity-70 hover:opacity-100'
@@ -1800,7 +1802,7 @@ export default function StoryBeatsModal({
                       value={searchQuery}
                       onChange={(e) => setSearchQuery(e.target.value)}
                       className={`w-full pl-9 pr-8 py-1.5 rounded-xl text-xs outline-none border transition-all ${
-                        theme === 'dark' ? 'bg-[#12161c] border-slate-700 focus:border-[#6ba3e8]' : 'bg-white border-[#d8cdba] focus:border-blue-600'
+                        theme === 'dark' ? 'bg-[#15191f] border-[#2d3640] text-slate-100 focus:border-[#6ba3e8]' : 'bg-white border-[#c8bea8] text-slate-900 focus:border-blue-600'
                       }`}
                     />
                     {searchQuery && (
@@ -1827,9 +1829,6 @@ export default function StoryBeatsModal({
                   <div className="max-w-5xl mx-auto space-y-2 pb-2">
                     {catalogTemplates.map((template, idx) => {
                       const isSelected = activeTemplateId === template.id;
-                      const isFilm = template.category === 'film';
-                      const isSeries = template.category === 'series';
-                      const isStreaming = template.category === 'streaming';
                       const completion = getTemplateCompletion(template);
 
                       return (
@@ -1839,12 +1838,12 @@ export default function StoryBeatsModal({
                           className={`px-4 py-3 rounded-xl border transition-all cursor-pointer flex items-center justify-between gap-4 group ${
                             isSelected
                               ? (theme === 'dark'
-                                  ? 'bg-[#1d2736] border-[#6ba3e8] ring-1 ring-[#6ba3e8]/40 shadow-sm'
-                                  : 'bg-[#edf4ff] border-blue-600 ring-1 ring-blue-500/40 shadow-sm'
+                                  ? 'bg-[#20272e] border-[#6ba3e8] ring-1 ring-[#6ba3e8]/40 shadow-sm'
+                                  : 'bg-white border-blue-600 ring-1 ring-blue-500/40 shadow-sm'
                                 )
                               : (theme === 'dark'
-                                  ? 'bg-[#181f2a]/60 border-[#242f3d] hover:bg-[#1e2736] hover:border-slate-600'
-                                  : 'bg-white border-[#e3dacf] hover:bg-[#fbf8f2] hover:border-[#cfc4b0]'
+                                  ? 'bg-[#15191f]/60 border-[#2d3640]/70 hover:bg-[#20272e] hover:border-[#2d3640]'
+                                  : 'bg-white border-[#c8bea8]/70 hover:bg-[#f4eee4] hover:border-[#c8bea8]'
                                 )
                           }`}
                         >
@@ -1864,7 +1863,7 @@ export default function StoryBeatsModal({
                               <div className="flex flex-wrap items-center gap-2">
                                 <h3 className={`font-bold text-xs sm:text-sm leading-tight transition-colors ${
                                   isSelected 
-                                    ? (theme === 'dark' ? 'text-blue-300 font-extrabold' : 'text-blue-700 font-extrabold') 
+                                    ? (theme === 'dark' ? 'text-[#6ba3e8] font-extrabold' : 'text-blue-700 font-extrabold') 
                                     : 'group-hover:text-blue-500'
                                 }`}>
                                   {template.title}
@@ -1917,7 +1916,7 @@ export default function StoryBeatsModal({
                             ) : (
                               <div className={`px-3 py-1.5 rounded-lg text-xs font-semibold flex items-center gap-1 transition-all ${
                                 theme === 'dark'
-                                  ? 'bg-slate-800/80 group-hover:bg-[#6ba3e8] group-hover:text-slate-950 text-slate-300'
+                                  ? 'bg-[#20272e] group-hover:bg-[#6ba3e8] group-hover:text-slate-950 text-slate-300'
                                   : 'bg-slate-100 group-hover:bg-blue-600 group-hover:text-white text-slate-700'
                               }`}>
                                 <span>Seç & Yaz</span>
@@ -1940,14 +1939,14 @@ export default function StoryBeatsModal({
           {viewMode === 'editor' && (
             <div className="flex-1 flex flex-col overflow-hidden">
               {/* COMPACT ACTIVE MODEL BANNER */}
-              <div className={`px-5 py-2.5 border-b flex items-center justify-between gap-3 text-xs shrink-0 ${theme === 'dark' ? 'bg-[#181e28] border-[#222a35]' : 'bg-[#f7f2e8] border-[#dfd6c5]'}`}>
+              <div className={`px-5 py-2.5 border-b flex items-center justify-between gap-3 text-xs shrink-0 ${subHeaderBg}`}>
                 <div className="flex items-center gap-3 min-w-0">
                   <button
                     onClick={() => setViewMode('catalog')}
                     className={`px-3 py-1.5 rounded-xl text-xs font-bold flex items-center gap-1.5 border transition-all ${
                       theme === 'dark' 
-                        ? 'bg-slate-800 hover:bg-slate-700 text-[#6ba3e8] border-slate-700' 
-                        : 'bg-white hover:bg-slate-50 text-blue-700 border-[#dfd6c5]'
+                        ? 'bg-[#20272e] hover:bg-[#2d3640] text-[#6ba3e8] border-[#2d3640]' 
+                        : 'bg-white hover:bg-[#f4eee4] text-blue-700 border-[#c8bea8]'
                     }`}
                   >
                     <ArrowLeft size={13} />
@@ -1988,7 +1987,7 @@ export default function StoryBeatsModal({
 
                   {/* BEATS SCROLLABLE LIST */}
                   <div className="flex-1 overflow-y-auto p-2 space-y-1.5 custom-scrollbar">
-                    {activeTemplate.beats.map((beat, idx) => {
+                    {activeTemplate.beats.map((beat) => {
                       const isSelected = activeBeatId === beat.id;
                       const hasAnswer = !!beatAnswers[beat.id]?.trim();
                       const targetPage = Math.max(1, Math.round((beat.targetPercent / 100) * pageTarget));
@@ -1999,16 +1998,16 @@ export default function StoryBeatsModal({
                           onClick={() => setActiveBeatId(beat.id)}
                           className={`w-full p-2.5 rounded-xl text-left transition-all border flex items-start justify-between gap-2 ${
                             isSelected
-                              ? (theme === 'dark' ? 'bg-[#252c33] text-[#6ba3e8] border-[#6ba3e8] font-bold shadow-md' : 'bg-[#dfd7ca] text-slate-950 border-blue-700 font-bold shadow-md')
+                              ? (theme === 'dark' ? 'bg-[#20272e] text-[#6ba3e8] border-[#6ba3e8] font-bold shadow-sm' : 'bg-white text-slate-950 border-blue-700 font-bold shadow-sm')
                               : theme === 'dark'
-                              ? 'bg-[#181e28]/70 text-slate-300 border-transparent hover:bg-[#202735] hover:border-slate-700'
-                              : 'bg-white/80 text-slate-800 border-transparent hover:bg-white hover:border-[#cfc4b0]'
+                              ? 'bg-transparent text-slate-300 border-transparent hover:bg-[#20272e]/60 hover:border-[#2d3640]/50'
+                              : 'bg-transparent text-slate-800 border-transparent hover:bg-white/80 hover:border-[#c8bea8]/50'
                           }`}
                         >
                           <div className="min-w-0 flex-1">
                             <div className="flex items-center gap-2 mb-0.5">
                               <span className={`text-[10px] font-mono font-bold px-1.5 py-0.2 rounded ${
-                                isSelected ? (theme === 'dark' ? 'bg-[#6ba3e8]/20 text-[#6ba3e8]' : 'bg-blue-100 text-blue-800') : 'bg-slate-500/10'
+                                isSelected ? (theme === 'dark' ? 'bg-[#6ba3e8]/20 text-[#6ba3e8]' : 'bg-blue-100 text-blue-800') : 'bg-black/5 dark:bg-white/5'
                               }`}>
                                 ~{targetPage}. Sayfa
                               </span>
@@ -2034,12 +2033,11 @@ export default function StoryBeatsModal({
                   </div>
                 </div>
 
-                {/* RIGHT: FOCUSED BEAT WORKSPACE */}
+                {/* RIGHT: FOCUSED BEAT WORKSPACE (MINIMALIST & AIRY) */}
                 {selectedBeat && (
                   <div className="flex-1 flex flex-col overflow-y-auto p-4 sm:p-6 space-y-4 custom-scrollbar">
-                    {/* SINGLE UNIFIED BEAT & GUIDANCE CARD */}
-                    <div className={`p-4 rounded-xl border ${cardBg} shadow-sm space-y-2.5`}>
-                      {/* Header: Beat Name & Target info */}
+                    {/* GUIDANCE HEADER */}
+                    <div className={`p-4 rounded-xl border ${cardBg} shadow-xs space-y-2`}>
                       <div className="flex items-center justify-between flex-wrap gap-2">
                         <h3 className={`text-sm sm:text-base font-bold tracking-tight ${theme === 'dark' ? 'text-[#6ba3e8]' : 'text-blue-700'}`}>
                           {selectedBeat.name}
@@ -2054,12 +2052,10 @@ export default function StoryBeatsModal({
                         </div>
                       </div>
 
-                      {/* Description */}
                       <p className="text-xs leading-relaxed opacity-85">
                         {selectedBeat.description}
                       </p>
 
-                      {/* Embedded Guiding Questions */}
                       {selectedBeat.guidingQuestions.length > 0 && (
                         <div className="pt-2 border-t border-inherit/40 space-y-1">
                           <div className={`text-[11px] font-bold flex items-center gap-1.5 opacity-80 ${theme === 'dark' ? 'text-[#6ba3e8]' : 'text-blue-700'}`}>
@@ -2077,7 +2073,7 @@ export default function StoryBeatsModal({
                       )}
                     </div>
 
-                    {/* WRITER'S NOTE TEXTAREA */}
+                    {/* WRITER'S NOTE WRITING CANVAS */}
                     <div className="flex-1 flex flex-col space-y-2 min-h-[220px]">
                       <div className="flex items-center justify-between text-xs font-semibold">
                         <span className="flex items-center gap-1.5">
@@ -2093,8 +2089,8 @@ export default function StoryBeatsModal({
                         placeholder={`Bu aşamada neler yaşanıyor? Karakterinizin eylemleri, karşılaştığı krizler, mekan ve diyalog detaylarını buraya yazın...`}
                         className={`flex-1 w-full p-4 text-xs sm:text-sm leading-relaxed rounded-xl border outline-none font-mono resize-none transition-all ${
                           theme === 'dark'
-                            ? 'bg-[#1b212b] border-[#2c3746] text-slate-100 focus:border-[#6ba3e8] focus:bg-[#1e2531]'
-                            : 'bg-white border-[#d8cdba] text-slate-900 focus:border-blue-600'
+                            ? 'bg-[#20272e] border-[#2d3640] text-slate-100 focus:border-[#6ba3e8]'
+                            : 'bg-white border-[#c8bea8] text-slate-900 focus:border-blue-600'
                         }`}
                       />
                     </div>
@@ -2108,10 +2104,10 @@ export default function StoryBeatsModal({
                             setActiveBeatId(activeTemplate.beats[selectedBeatIndex - 1].id);
                           }
                         }}
-                        className={`px-3 py-1.5 rounded-lg text-xs font-semibold flex items-center gap-1 transition-all ${
+                        className={`px-3 py-1.5 rounded-xl text-xs font-semibold flex items-center gap-1 border transition-all ${
                           selectedBeatIndex <= 0
-                            ? 'opacity-30 cursor-not-allowed'
-                            : theme === 'dark' ? 'bg-slate-800 hover:bg-slate-700 text-slate-200' : 'bg-white hover:bg-slate-50 border text-slate-800'
+                            ? 'opacity-30 cursor-not-allowed border-transparent'
+                            : theme === 'dark' ? 'bg-[#20272e] hover:bg-[#2d3640] text-slate-200 border-[#2d3640]' : 'bg-white hover:bg-[#f4eee4] border-[#c8bea8] text-slate-800'
                         }`}
                       >
                         <ChevronLeft size={14} />
@@ -2129,10 +2125,10 @@ export default function StoryBeatsModal({
                             setActiveBeatId(activeTemplate.beats[selectedBeatIndex + 1].id);
                           }
                         }}
-                        className={`px-3 py-1.5 rounded-lg text-xs font-semibold flex items-center gap-1 transition-all ${
+                        className={`px-3 py-1.5 rounded-xl text-xs font-semibold flex items-center gap-1 border transition-all ${
                           selectedBeatIndex >= activeTemplate.beats.length - 1
-                            ? 'opacity-30 cursor-not-allowed'
-                            : theme === 'dark' ? 'bg-slate-800 hover:bg-slate-700 text-slate-200' : 'bg-white hover:bg-slate-50 border text-slate-800'
+                            ? 'opacity-30 cursor-not-allowed border-transparent'
+                            : theme === 'dark' ? 'bg-[#20272e] hover:bg-[#2d3640] text-slate-200 border-[#2d3640]' : 'bg-white hover:bg-[#f4eee4] border-[#c8bea8] text-slate-800'
                         }`}
                       >
                         <span>Sonraki Beat</span>
@@ -2148,7 +2144,7 @@ export default function StoryBeatsModal({
           {/* ============================================================ */}
           {/* GLOBAL FOOTER */}
           {/* ============================================================ */}
-          <div className={`px-6 py-3 border-t flex items-center justify-between shrink-0 ${theme === 'dark' ? 'border-slate-800 bg-[#141820]' : 'border-[#dfd6c5] bg-[#ece4d6]'}`}>
+          <div className={`px-6 py-3 border-t flex items-center justify-between shrink-0 ${headerBg}`}>
             <div className="flex items-center gap-3">
               <span className="text-xs opacity-75 font-mono">
                 Aktif Model: <strong className="opacity-100">{activeTemplate.title}</strong> ({activeTemplate.badge})
@@ -2160,7 +2156,7 @@ export default function StoryBeatsModal({
                 <button
                   onClick={() => setViewMode('catalog')}
                   className={`px-4 py-2 rounded-xl text-xs font-semibold border transition-all ${
-                    theme === 'dark' ? 'bg-slate-800 hover:bg-slate-700 border-slate-700 text-slate-200' : 'bg-white hover:bg-slate-50 border-[#dfd6c5] text-slate-800'
+                    theme === 'dark' ? 'bg-[#20272e] hover:bg-[#2d3640] border-[#2d3640] text-slate-200' : 'bg-white hover:bg-[#f4eee4] border-[#c8bea8] text-slate-800'
                   }`}
                 >
                   Şablon Kataloğu ({STORY_TEMPLATES.length})

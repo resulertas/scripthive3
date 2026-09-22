@@ -18,7 +18,6 @@ import NotesModal from './components/NotesModal';
 import CharacterStatsModal from './components/CharacterStatsModal';
 import LocationListModal from './components/LocationListModal';
 import BinModal from './components/BinModal';
-import AiAssistantPanel from './components/AiAssistantPanel';
 import DialogueTunerModal from './components/DialogueTunerModal';
 import ActorSidesModal from './components/ActorSidesModal';
 import CharacterMatrixModal from './components/CharacterMatrixModal';
@@ -441,7 +440,6 @@ export default function App() {
   const [isStatsOpen, setIsStatsOpen] = useState(false);
   const [isLocationListOpen, setIsLocationListOpen] = useState(false);
   const [isBinModalOpen, setIsBinModalOpen] = useState(false);
-  const [isAiModalOpen, setIsAiModalOpen] = useState(false);
   const [isDialogueTunerOpen, setIsDialogueTunerOpen] = useState(false);
   const [isActorSidesOpen, setIsActorSidesOpen] = useState(false);
   const [isCharacterMatrixOpen, setIsCharacterMatrixOpen] = useState(false);
@@ -4297,7 +4295,6 @@ export default function App() {
           onOpenStats={() => setIsStatsOpen(true)}
           onOpenLocationList={() => setIsLocationListOpen(true)}
           onOpenBin={() => setIsBinModalOpen(true)}
-          onOpenAi={() => setIsAiModalOpen(prev => !prev)}
           isHealthBreakEnabled={isHealthBreakEnabled}
           setIsHealthBreakEnabled={setIsHealthBreakEnabled}
           isOffline={isOffline}
@@ -4579,19 +4576,6 @@ export default function App() {
               targetPageCount={targetPageCount}
             />
           )}
-
-          {/* Right Docked AI Assistant Panel */}
-          {!isZenMode && isAiModalOpen && (
-            <AiAssistantPanel
-              isOpen={isAiModalOpen}
-              onClose={() => setIsAiModalOpen(false)}
-              theme={theme}
-              elements={numberedElements}
-              focusedElement={focusedElement || null}
-              onInsertElement={handleInsertAiElement}
-              onUpdateFocusedElement={handleUpdateFocusedElementContent}
-            />
-          )}
         </div>
         {!isZenMode && activeUiMode === 'tablet' && (
           <div className="block shrink-0 border-t md:border-t-0 md:border-l border-slate-200 dark:border-slate-700 z-50">
@@ -4635,7 +4619,6 @@ export default function App() {
               onOpenStats={() => setIsStatsOpen(true)}
               onOpenLocationList={() => setIsLocationListOpen(true)}
               onOpenBin={() => setIsBinModalOpen(true)}
-              onOpenAi={() => setIsAiModalOpen(prev => !prev)}
               onOpenGuide={() => setIsGuideOpen(true)}
               onOpenDramaticArc={() => setIsDramaticArcOpen(true)}
               onOpenStoryBeats={() => setIsStoryBeatsOpen(true)}

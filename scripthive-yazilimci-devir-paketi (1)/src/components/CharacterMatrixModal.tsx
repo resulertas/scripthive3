@@ -323,11 +323,13 @@ export default function CharacterMatrixModal({
     }
   };
 
-  const bgModal = theme === 'dark' ? 'bg-[#1a1f26] text-slate-100 border-[#2d3640]' : 'bg-[#FFFFF0] text-slate-900 border-[#c8bea8]';
-  const cardBg = theme === 'dark' ? 'bg-[#14181f] border-[#252f3d]' : 'bg-white border-[#ded5c5]';
-  const innerCardBg = theme === 'dark' ? 'bg-[#1c222b] border-[#2d3640]' : 'bg-[#faf7f0] border-[#e2dacb]';
-  const btnActive = theme === 'dark' ? 'bg-slate-700 text-white font-medium' : 'bg-[#e4dcce] text-slate-900 font-semibold';
-  const btnInactive = theme === 'dark' ? 'text-slate-400 hover:text-slate-200 hover:bg-slate-800' : 'text-slate-600 hover:text-slate-900 hover:bg-[#ede6d9]';
+  const bgModal = theme === 'dark' ? 'bg-[#1a1f25] text-slate-100 border-[#2d3640]/70' : 'bg-[#fcfbf8] text-slate-900 border-[#c8bea8]/70';
+  const cardBg = theme === 'dark' ? 'bg-[#20272e] border-[#2d3640]/70' : 'bg-white border-[#c8bea8]/70';
+  const innerCardBg = theme === 'dark' ? 'bg-[#15191f] border-[#2d3640]/60' : 'bg-[#f4eee4] border-[#c8bea8]/60';
+  const headerBg = theme === 'dark' ? 'bg-[#1a1f25] border-[#2d3640]/70' : 'bg-[#e8e0d5] border-[#c8bea8]/70';
+  const subHeaderBg = theme === 'dark' ? 'bg-[#15191f] border-[#2d3640]/70' : 'bg-[#f4eee4] border-[#c8bea8]/70';
+  const btnActive = theme === 'dark' ? 'bg-[#6ba3e8] text-slate-950 font-bold shadow-xs' : 'bg-blue-700 text-white font-bold shadow-xs';
+  const btnInactive = theme === 'dark' ? 'text-slate-400 hover:text-slate-200 hover:bg-[#20272e]' : 'text-slate-600 hover:text-slate-900 hover:bg-[#ebe3d5]';
 
   return (
     <AnimatePresence>
@@ -340,9 +342,9 @@ export default function CharacterMatrixModal({
           className={`w-full max-w-5xl h-[90vh] rounded-2xl shadow-2xl border flex flex-col overflow-hidden ${bgModal}`}
         >
           {/* HEADER */}
-          <div className={`px-5 py-3.5 border-b flex items-center justify-between shrink-0 ${theme === 'dark' ? 'border-[#2d3640] bg-[#161c24]' : 'border-[#c8bea8] bg-[#e8e0d5]'}`}>
+          <div className={`px-5 py-3.5 border-b flex items-center justify-between shrink-0 ${headerBg}`}>
             <div className="flex items-center gap-3">
-              <div className="p-2 rounded-lg bg-slate-500/10 text-slate-600 dark:text-slate-300 border border-slate-500/20">
+              <div className={`p-2 rounded-xl border ${theme === 'dark' ? 'bg-[#6ba3e8]/15 text-[#6ba3e8] border-[#6ba3e8]/30' : 'bg-blue-600/15 text-blue-700 border-blue-200'}`}>
                 <ArrowRightLeft size={18} />
               </div>
               <div>
@@ -357,21 +359,21 @@ export default function CharacterMatrixModal({
               <div className="hidden sm:flex items-center gap-1 mr-2">
                 <button
                   onClick={exportMarkdown}
-                  className={`px-2.5 py-1 text-xs rounded-lg border transition-colors flex items-center gap-1.5 ${theme === 'dark' ? 'border-slate-700 bg-slate-800/80 hover:bg-slate-700 text-slate-300' : 'border-[#ded5c5] bg-white hover:bg-[#ebe3d5] text-slate-700'}`}
+                  className={`px-2.5 py-1 text-xs rounded-xl border transition-colors flex items-center gap-1.5 ${theme === 'dark' ? 'border-[#2d3640] bg-[#20272e] hover:bg-[#2d3640] text-slate-300' : 'border-[#c8bea8] bg-white hover:bg-[#f4eee4] text-slate-700'}`}
                   title="Markdown İndir"
                 >
                   <Download size={12} /> .md
                 </button>
                 <button
                   onClick={exportDOCX}
-                  className={`px-2.5 py-1 text-xs rounded-lg border transition-colors flex items-center gap-1.5 ${theme === 'dark' ? 'border-slate-700 bg-slate-800/80 hover:bg-slate-700 text-slate-300' : 'border-[#ded5c5] bg-white hover:bg-[#ebe3d5] text-slate-700'}`}
+                  className={`px-2.5 py-1 text-xs rounded-xl border transition-colors flex items-center gap-1.5 ${theme === 'dark' ? 'border-[#2d3640] bg-[#20272e] hover:bg-[#2d3640] text-slate-300' : 'border-[#c8bea8] bg-white hover:bg-[#f4eee4] text-slate-700'}`}
                   title="Word İndir"
                 >
                   <FileText size={12} /> Word
                 </button>
                 <button
                   onClick={exportJSON}
-                  className={`px-2.5 py-1 text-xs rounded-lg border transition-colors flex items-center gap-1.5 ${theme === 'dark' ? 'border-slate-700 bg-slate-800/80 hover:bg-slate-700 text-slate-300' : 'border-[#ded5c5] bg-white hover:bg-[#ebe3d5] text-slate-700'}`}
+                  className={`px-2.5 py-1 text-xs rounded-xl border transition-colors flex items-center gap-1.5 ${theme === 'dark' ? 'border-[#2d3640] bg-[#20272e] hover:bg-[#2d3640] text-slate-300' : 'border-[#c8bea8] bg-white hover:bg-[#f4eee4] text-slate-700'}`}
                   title="JSON İndir"
                 >
                   JSON
@@ -380,7 +382,7 @@ export default function CharacterMatrixModal({
 
               <button
                 onClick={onClose}
-                className={`p-1.5 rounded-lg transition-colors ${theme === 'dark' ? 'hover:bg-slate-700 text-slate-400 hover:text-white' : 'hover:bg-[#dfd7ca] text-slate-600 hover:text-black'}`}
+                className={`p-1.5 rounded-xl transition-colors ${theme === 'dark' ? 'hover:bg-[#2d3640] text-slate-400 hover:text-white' : 'hover:bg-[#dfd7ca] text-slate-600 hover:text-black'}`}
                 title="Kapat"
               >
                 <X size={18} />
@@ -389,9 +391,9 @@ export default function CharacterMatrixModal({
           </div>
 
           {/* SUB-HEADER: TABS & FILTER */}
-          <div className={`px-5 py-2.5 border-b flex flex-col sm:flex-row items-center justify-between gap-3 shrink-0 ${theme === 'dark' ? 'border-[#252f3d] bg-[#12161c]' : 'border-[#e4dcce] bg-[#f5efe4]'}`}>
+          <div className={`px-5 py-2.5 border-b flex flex-col sm:flex-row items-center justify-between gap-3 shrink-0 ${subHeaderBg}`}>
             {/* TABS */}
-            <div className={`p-0.5 rounded-xl border flex items-center gap-1 ${theme === 'dark' ? 'bg-[#181e26] border-slate-800' : 'bg-[#e8e0d4] border-[#d8cfbf]'}`}>
+            <div className={`p-0.5 rounded-xl border flex items-center gap-1 ${theme === 'dark' ? 'bg-[#15191f] border-[#2d3640]' : 'bg-[#e8e0d5] border-[#c8bea8]'}`}>
               <button
                 onClick={() => setActiveTab('interactions')}
                 className={`px-3 py-1.5 rounded-lg text-xs transition-all flex items-center gap-1.5 ${activeTab === 'interactions' ? btnActive : btnInactive}`}
@@ -424,7 +426,7 @@ export default function CharacterMatrixModal({
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                   placeholder="Ara..."
-                  className={`w-full pl-8 pr-2.5 py-1 text-xs rounded-lg border outline-none ${theme === 'dark' ? 'bg-[#161c24] border-slate-700 text-slate-200' : 'bg-white border-[#dcd4c4] text-slate-800'}`}
+                  className={`w-full pl-8 pr-2.5 py-1 text-xs rounded-xl border outline-none transition-all ${theme === 'dark' ? 'bg-[#15191f] border-[#2d3640] text-slate-100 focus:border-[#6ba3e8]' : 'bg-white border-[#c8bea8] text-slate-900 focus:border-blue-600'}`}
                 />
               </div>
 
@@ -432,7 +434,7 @@ export default function CharacterMatrixModal({
                 <select
                   value={selectedCharacter}
                   onChange={(e) => setSelectedCharacter(e.target.value)}
-                  className={`px-2.5 py-1 text-xs rounded-lg border outline-none font-mono ${theme === 'dark' ? 'bg-[#161c24] border-slate-700 text-slate-200' : 'bg-white border-[#dcd4c4] text-slate-800'}`}
+                  className={`px-2.5 py-1 text-xs rounded-xl border outline-none font-mono transition-all ${theme === 'dark' ? 'bg-[#15191f] border-[#2d3640] text-slate-100 focus:border-[#6ba3e8]' : 'bg-white border-[#c8bea8] text-slate-900 focus:border-blue-600'}`}
                 >
                   <option value="ALL">Tüm Karakterler</option>
                   {characterList.map(c => (
@@ -444,7 +446,7 @@ export default function CharacterMatrixModal({
           </div>
 
           {/* MAIN CONTENT AREA */}
-          <div className="flex-1 overflow-y-auto p-4 sm:p-5">
+          <div className="flex-1 overflow-y-auto p-4 sm:p-5 custom-scrollbar">
             
             {/* TAB 1: CHARACTER INTERACTIONS */}
             {activeTab === 'interactions' && (
@@ -470,9 +472,9 @@ export default function CharacterMatrixModal({
                         >
                           <div className="flex items-center gap-3">
                             <div className="flex items-center gap-2 font-mono text-xs font-bold tracking-tight">
-                              <span className="px-2 py-0.5 rounded bg-slate-500/10 border border-slate-500/20">{pair.char1}</span>
+                              <span className={`px-2 py-0.5 rounded-lg border ${theme === 'dark' ? 'bg-[#15191f] border-[#2d3640] text-slate-200' : 'bg-[#f4eee4] border-[#c8bea8] text-slate-800'}`}>{pair.char1}</span>
                               <span className="opacity-40 text-[11px]">↔</span>
-                              <span className="px-2 py-0.5 rounded bg-slate-500/10 border border-slate-500/20">{pair.char2}</span>
+                              <span className={`px-2 py-0.5 rounded-lg border ${theme === 'dark' ? 'bg-[#15191f] border-[#2d3640] text-slate-200' : 'bg-[#f4eee4] border-[#c8bea8] text-slate-800'}`}>{pair.char2}</span>
                             </div>
 
                             <div className="hidden md:flex items-center gap-2 text-[11px] opacity-60">
@@ -481,7 +483,7 @@ export default function CharacterMatrixModal({
                           </div>
 
                           <div className="flex items-center gap-3">
-                            <span className="text-xs font-mono font-semibold px-2 py-0.5 rounded-full bg-slate-500/10 border border-slate-500/20">
+                            <span className={`text-xs font-mono font-semibold px-2 py-0.5 rounded-full border ${theme === 'dark' ? 'bg-[#6ba3e8]/15 text-[#6ba3e8] border-[#6ba3e8]/30' : 'bg-blue-50 text-blue-800 border-blue-200'}`}>
                               {pair.sharedCount} Ortak Sahne
                             </span>
                             <div className="opacity-40">
@@ -504,7 +506,7 @@ export default function CharacterMatrixModal({
                                     onJumpToScene?.(scene.sceneId);
                                     onClose();
                                   }}
-                                  className={`p-2 rounded-lg text-left text-xs border transition-colors flex items-center justify-between ${theme === 'dark' ? 'bg-[#14181f] border-slate-800 hover:border-slate-600' : 'bg-white border-[#e0d8c8] hover:border-[#b8ad98]'}`}
+                                  className={`p-2 rounded-lg text-left text-xs border transition-colors flex items-center justify-between ${theme === 'dark' ? 'bg-[#20272e] border-[#2d3640] hover:border-[#6ba3e8]/60 text-slate-200' : 'bg-white border-[#c8bea8] hover:border-blue-500 text-slate-800'}`}
                                 >
                                   <div className="flex items-center gap-2 overflow-hidden">
                                     <span className="font-mono font-bold shrink-0 opacity-70">
@@ -527,9 +529,9 @@ export default function CharacterMatrixModal({
 
                 {/* ZERO INTERACTIONS SECTION */}
                 {selectedCharacter === 'ALL' && zeroInteractionPairs.length > 0 && (
-                  <div className={`mt-6 p-4 rounded-xl border ${theme === 'dark' ? 'bg-[#12161d] border-slate-800' : 'bg-[#faf6ee] border-[#dfd7c7]'}`}>
+                  <div className={`mt-6 p-4 rounded-xl border ${theme === 'dark' ? 'bg-[#15191f] border-[#2d3640]' : 'bg-[#f4eee4] border-[#c8bea8]'}`}>
                     <div className="flex items-center gap-2 mb-2">
-                      <Sparkles size={14} className="opacity-60" />
+                      <Sparkles size={14} className={theme === 'dark' ? 'text-[#6ba3e8]' : 'text-blue-700'} />
                       <span className="text-xs font-bold tracking-tight opacity-80 uppercase">
                         Hiç Ortak Sahnesi Olmayan Karakterler ({zeroInteractionPairs.length})
                       </span>
@@ -541,7 +543,7 @@ export default function CharacterMatrixModal({
                       {zeroInteractionPairs.slice(0, 16).map((zp, idx) => (
                         <div 
                           key={idx}
-                          className={`px-2.5 py-1 rounded-lg text-[11px] font-mono border ${theme === 'dark' ? 'bg-[#171d26] border-slate-700/60 opacity-75' : 'bg-white border-[#d8cfbe] opacity-80'}`}
+                          className={`px-2.5 py-1 rounded-lg text-[11px] font-mono border ${theme === 'dark' ? 'bg-[#20272e] border-[#2d3640] text-slate-300' : 'bg-white border-[#c8bea8] text-slate-700'}`}
                         >
                           {zp.char1} ↮ {zp.char2}
                         </div>
@@ -659,7 +661,7 @@ export default function CharacterMatrixModal({
           </div>
 
           {/* FOOTER */}
-          <div className={`px-5 py-2.5 border-t flex items-center justify-between text-[11px] opacity-60 ${theme === 'dark' ? 'border-[#2d3640] bg-[#161c24]' : 'border-[#c8bea8] bg-[#e8e0d5]'}`}>
+          <div className={`px-5 py-2.5 border-t flex items-center justify-between text-[11px] opacity-60 ${headerBg}`}>
             <span>Toplam {characterList.length} karakter, {scenes.length} sahne incelendi.</span>
             <span>Senaryo Yapım & Analiz Modülü</span>
           </div>

@@ -130,13 +130,13 @@ export default function StoryBibleModal({ isOpen, onClose, theme }: StoryBibleMo
 
   if (!isOpen) return null;
 
-  const bgClass = theme === 'dark' ? 'bg-[#1a1f25]' : 'bg-[#e8e0d5]';
-  const modalBg = theme === 'dark' ? 'bg-[#20272e]' : 'bg-[#FFFFF0]';
+  const bgClass = theme === 'dark' ? 'bg-[#15191f]' : 'bg-[#f4eee4]';
+  const modalBg = theme === 'dark' ? 'bg-[#1e242b]' : 'bg-[#fcfbf8]';
   const textClass = theme === 'dark' ? 'text-slate-100' : 'text-slate-900';
-  const borderClass = theme === 'dark' ? 'border-[#2d3640]' : 'border-[#c8bea8]';
-  const inputBg = theme === 'dark' ? 'bg-[#1a1f25]' : 'bg-[#FFFFF0]';
-  const itemHover = theme === 'dark' ? 'hover:bg-[#252c33]' : 'hover:bg-[#dfd7ca]';
-  const itemActive = theme === 'dark' ? 'bg-[#252c33] border-l-4 border-[#6ba3e8] text-[#6ba3e8] font-bold' : 'bg-[#dfd7ca] border-l-4 border-blue-700 text-slate-950 font-bold';
+  const borderClass = theme === 'dark' ? 'border-[#2d3640]/70' : 'border-[#c8bea8]/70';
+  const inputBg = theme === 'dark' ? 'bg-[#15191f]' : 'bg-white';
+  const itemHover = theme === 'dark' ? 'hover:bg-[#20272e]' : 'hover:bg-[#ede5d6]';
+  const itemActive = theme === 'dark' ? 'bg-[#20272e] text-[#6ba3e8] font-bold shadow-xs' : 'bg-[#e8e0d5] text-slate-950 font-bold shadow-xs';
 
   const updateSeriesName = (name: string) => {
     setBibleData(prev => ({ ...prev, seriesName: name }));
@@ -179,20 +179,31 @@ export default function StoryBibleModal({ isOpen, onClose, theme }: StoryBibleMo
 
   const activeEpisode = bibleData.episodes.find(ep => ep.id === activeEpisodeId);
 
+  const handleSave = () => {
+    safeStorage.setItem('scriptHive_storyBible', JSON.stringify(bibleData));
+    setIsSaved(true);
+    setTimeout(() => setIsSaved(false), 2000);
+  };
+
   // --- EXPORT HANDLERS ---
   const handleExportJSON = () => {
-    const dataStr = JSON.stringify(bibleData, null, 2);
-    downloadUtf8File(dataStr, `${(bibleData.seriesName || 'Dizi').replace(/\s+/g, '_')}_Sezon_Hikayesi.json`, 'application/json;charset=utf-8');
+    const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(bibleData, null, 2));
+    const downloadAnchor = document.createElement('a');
+    downloadAnchor.setAttribute("href", dataStr);
+    downloadAnchor.setAttribute("download", `${(bibleData.seriesName || 'Dizi').replace(/\s+/g, '_')}_Sezon_Hikayesi.json`);
+    document.body.appendChild(downloadAnchor);
+    downloadAnchor.click();
+    downloadAnchor.remove();
   };
 
   const handleExportMarkdown = () => {
-    let md = `# ${bibleData.seriesName || 'İsimsiz Dizi'} - Sezon Hikayesi & Rehberi\n\n`;
-    md += `* **Toplam Bölüm:** ${bibleData.episodes.length}\n`;
-    md += `* **Oluşturulma Tarihi:** ${new Date().toLocaleDateString('tr-TR')}\n\n---\n\n`;
+    let md = `# ${bibleData.seriesName || 'İsimsiz Dizi'} - Sezon Hikayesi & Dizi Rehberi\n\n`;
+    md += `*Toplam Bölüm Sayısı:* ${bibleData.episodes.length}\n`;
+    md += `*Son Güncelleme:* ${new Date().toLocaleDateString('tr-TR')}\n\n---\n\n`;
 
     bibleData.episodes.forEach((ep, i) => {
-      md += `## Bölüm ${i + 1}: ${ep.episodeName}\n\n`;
-      md += `${ep.storyContent || '_Henüz bir özet yazılmadı._'}\n\n---\n\n`;
+      md += `## ${i + 1}. Bölüm: ${ep.episodeName}\n\n`;
+      md += `${ep.storyContent || '(Henüz bir özet yazılmadı.)'}\n\n---\n\n`;
     });
 
     downloadUtf8File(md, `${(bibleData.seriesName || 'Dizi').replace(/\s+/g, '_')}_Sezon_Hikayesi.md`, 'text/markdown;charset=utf-8');
@@ -203,29 +214,16 @@ export default function StoryBibleModal({ isOpen, onClose, theme }: StoryBibleMo
       const { Document, Packer, Paragraph, TextRun, HeadingLevel, AlignmentType } = await import('docx');
       const docChildren: any[] = [
         new Paragraph({
-          children: [
-            new TextRun({ 
-              text: `${bibleData.seriesName || 'İsimsiz Dizi'} - Sezon Hikayesi`, 
-              bold: true, 
-              size: 32,
-              font: "Arial"
-            })
-          ],
+          text: `${bibleData.seriesName || 'İsimsiz Dizi'}`,
+          heading: HeadingLevel.TITLE,
           alignment: AlignmentType.CENTER,
-          spacing: { before: 100, after: 150 }
+          spacing: { after: 200 }
         }),
         new Paragraph({
-          children: [
-            new TextRun({ 
-              text: `Toplam Bölüm: ${bibleData.episodes.length}  |  Tarih: ${new Date().toLocaleDateString('tr-TR')}`, 
-              italics: true, 
-              size: 20,
-              color: "64748B",
-              font: "Arial"
-            })
-          ],
+          text: "SEZON HİKAYESİ VE DİZİ REHBERİ (STORY BIBLE)",
+          heading: HeadingLevel.HEADING_2,
           alignment: AlignmentType.CENTER,
-          spacing: { after: 350 }
+          spacing: { after: 400 }
         })
       ];
 
@@ -234,9 +232,9 @@ export default function StoryBibleModal({ isOpen, onClose, theme }: StoryBibleMo
           new Paragraph({
             children: [
               new TextRun({ 
-                text: `${i + 1}. BÖLÜM: ${ep.episodeName}`, 
+                text: `${i + 1}. BÖLÜM: ${ep.episodeName.toUpperCase()}`, 
                 bold: true, 
-                size: 24,
+                size: 26, 
                 color: "1E40AF",
                 font: "Arial" 
               })
@@ -452,65 +450,61 @@ export default function StoryBibleModal({ isOpen, onClose, theme }: StoryBibleMo
 
     } catch (err: any) {
       console.error(err);
-      alert("Dosya yüklenirken ve işlenirken bir hata oluştu: " + (err.message || String(err)));
+      setImportStatusMessage(`⚠️ Dosya okunamadı: ${err.message || 'Bilinmeyen hata'}`);
+      setTimeout(() => setImportStatusMessage(null), 4000);
     } finally {
       setIsImporting(false);
       if (fileInputRef.current) fileInputRef.current.value = '';
     }
   };
 
-  const handleSave = () => {
-    setIsSaved(true);
-    setTimeout(() => setIsSaved(false), 2000);
-  };
-
   return (
-    <div className={`fixed inset-0 z-[100] flex items-center justify-center bg-black/75 backdrop-blur-sm p-3 sm:p-6 animate-in fade-in duration-200`}>
-      <div className={`${modalBg} w-full max-w-6xl h-[88vh] max-h-[900px] rounded-2xl shadow-2xl flex flex-col md:flex-row overflow-hidden border ${borderClass}`}>
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-6 bg-black/60 backdrop-blur-xs select-none">
+      <div className={`w-full max-w-5xl h-[88vh] rounded-2xl shadow-2xl flex flex-col md:flex-row overflow-hidden border ${borderClass} ${modalBg}`}>
         
         {/* SOL MENÜ - BÖLÜMLER LİSTESİ & İÇE/DIŞA AKTAR BUTONLARI */}
         <div className={`w-full md:w-72 flex-shrink-0 flex flex-col border-b md:border-b-0 md:border-r ${borderClass} ${bgClass}`}>
           <div className={`p-4 border-b ${borderClass}`}>
             <h2 className={`font-bold flex items-center gap-2 ${textClass} mb-1 text-sm`}>
               <Book size={18} className={theme === 'dark' ? 'text-[#6ba3e8]' : 'text-blue-700'} />
-              Sezon Hikayesi & Dizi Rehberi
+              Sezon Hikayesi
             </h2>
-            <p className="text-[11px] opacity-60 mb-3">Tüm bölümlerin hikaye ve olay örgüsü</p>
+            <p className="text-[11px] opacity-60 mb-2.5">Bölüm özetleri & dizi incili</p>
             <input 
               type="text" 
               value={bibleData.seriesName}
               onChange={(e) => updateSeriesName(e.target.value)}
               placeholder="Dizi / Sezon Adı"
-              className={`w-full text-sm font-semibold p-2.5 rounded-xl border focus:outline-none transition-colors ${inputBg} ${borderClass} ${textClass}`}
+              className={`w-full text-xs font-semibold px-3 py-2 rounded-lg border focus:outline-none transition-colors ${inputBg} ${borderClass} ${textClass}`}
             />
           </div>
 
           {/* STATUS NOTIFICATION BANNER */}
           {importStatusMessage && (
-            <div className="mx-3 mt-2 p-2.5 rounded-xl bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 text-xs font-semibold flex items-center gap-2 animate-in fade-in duration-200">
-              <Check size={14} className="shrink-0" />
+            <div className="mx-3 mt-2 p-2 rounded-lg bg-emerald-500/15 text-emerald-400 border border-emerald-500/30 text-xs font-semibold flex items-center gap-2 animate-in fade-in duration-200">
+              <Check size={13} className="shrink-0" />
               <span className="truncate">{importStatusMessage}</span>
             </div>
           )}
 
           <div className="flex-1 overflow-y-auto p-2">
-            <div className={`text-xs font-semibold uppercase tracking-wider mb-2 px-2 opacity-60 flex items-center justify-between`}>
+            <div className={`text-[10px] font-bold uppercase tracking-wider mb-1.5 px-2 opacity-50 flex items-center justify-between`}>
               <span>BÖLÜMLER ({bibleData.episodes.length})</span>
             </div>
-            <div className="space-y-1">
+            <div className="space-y-0.5">
               {bibleData.episodes.map(ep => (
                 <div 
                   key={ep.id}
                   onClick={() => setActiveEpisodeId(ep.id)}
-                  className={`group flex items-center justify-between p-2.5 rounded-xl cursor-pointer transition-colors ${activeEpisodeId === ep.id ? itemActive : itemHover} ${textClass}`}
+                  className={`group flex items-center justify-between px-3 py-2 rounded-lg cursor-pointer transition-colors ${activeEpisodeId === ep.id ? itemActive : itemHover} ${textClass}`}
                 >
-                  <span className="text-sm font-medium truncate pr-2">{ep.episodeName}</span>
+                  <span className="text-xs font-medium truncate pr-2">{ep.episodeName}</span>
                   <button 
                     onClick={(e) => handleRemoveEpisode(ep.id, e)}
                     className="opacity-0 group-hover:opacity-100 text-red-500 hover:bg-red-500/20 p-1 rounded-md transition-all"
                     title="Bu bölümü sil"
                   >
-                    <Trash2 size={14} />
+                    <Trash2 size={13} />
                   </button>
                 </div>
               ))}
@@ -518,9 +512,9 @@ export default function StoryBibleModal({ isOpen, onClose, theme }: StoryBibleMo
             
             <button 
               onClick={handleAddEpisode}
-              className={`w-full mt-3 flex items-center justify-center gap-2 py-2.5 rounded-xl border border-dashed hover:border-solid transition-all text-xs font-semibold ${theme === 'dark' ? 'border-slate-600 text-[#6ba3e8] hover:border-[#6ba3e8] hover:bg-[#252c33]' : 'border-[#c8bea8] text-blue-700 hover:border-blue-700 hover:bg-[#dfd7ca]'}`}
+              className={`w-full mt-2 flex items-center justify-center gap-1.5 py-2 rounded-lg border border-dashed hover:border-solid transition-all text-xs font-semibold ${theme === 'dark' ? 'border-[#2d3640] text-[#6ba3e8] hover:bg-[#20272e]' : 'border-[#c8bea8] text-blue-700 hover:bg-[#e8e0d5]'}`}
             >
-              <Plus size={15} /> Yeni Bölüm Ekle
+              <Plus size={14} /> Yeni Bölüm Ekle
             </button>
           </div>
           
@@ -539,62 +533,58 @@ export default function StoryBibleModal({ isOpen, onClose, theme }: StoryBibleMo
             <button 
               onClick={() => fileInputRef.current?.click()}
               disabled={isImporting}
-              className={`w-full flex items-center justify-center gap-2 text-xs font-semibold py-2.5 rounded-xl transition-all border shadow-sm ${
+              className={`w-full flex items-center justify-center gap-2 text-xs font-semibold py-2 rounded-lg transition-all border ${
                 theme === 'dark' 
-                  ? 'border-blue-500/40 bg-blue-600/10 hover:bg-blue-600/20 text-[#6ba3e8]' 
-                  : 'border-blue-600/40 bg-blue-50 hover:bg-blue-100 text-blue-700'
+                  ? 'border-[#2d3640] bg-[#20272e] hover:bg-[#28323c] text-slate-200' 
+                  : 'border-[#c8bea8] bg-white hover:bg-slate-50 text-slate-800 shadow-xs'
               }`}
               title="Word (.docx), PDF, Markdown (.md), Metin (.txt) veya JSON dosyası yükle"
             >
               {isImporting ? (
                 <>
-                  <Loader2 size={14} className="animate-spin" />
+                  <Loader2 size={13} className="animate-spin" />
                   <span>İşleniyor...</span>
                 </>
               ) : (
                 <>
-                  <Upload size={14} />
-                  <span>Dosyadan Yükle (DOCX, PDF, MD, JSON)</span>
+                  <Upload size={13} />
+                  <span>Dosyadan Yükle (DOCX, PDF, MD)</span>
                 </>
               )}
             </button>
 
             {/* Dışa Aktar (Download) Butonları */}
-            <div className="text-[10px] font-bold uppercase tracking-wider opacity-60 text-center mt-1">
-              Dışa Aktar & İndir
-            </div>
-            
             <div className="grid grid-cols-2 gap-1.5 w-full">
               <button 
                 onClick={handleExportDOCX}
-                className={`flex items-center justify-center gap-1.5 text-xs font-semibold py-2 rounded-lg transition-colors border ${theme === 'dark' ? 'border-[#2d3640] hover:bg-[#252c33] text-blue-400' : 'border-[#c8bea8] hover:bg-[#dfd7ca] text-blue-700'}`}
+                className={`flex items-center justify-center gap-1.5 text-xs font-medium py-1.5 rounded-lg transition-colors border ${theme === 'dark' ? 'border-[#2d3640] hover:bg-[#20272e] text-slate-300' : 'border-[#c8bea8] hover:bg-white text-slate-700'}`}
                 title="Microsoft Word (.docx) olarak indir"
               >
-                <Download size={13} /> DOCX (Word)
+                <Download size={12} /> Word (.docx)
               </button>
               <button 
                 onClick={handleExportPDF}
-                className={`flex items-center justify-center gap-1.5 text-xs font-semibold py-2 rounded-lg transition-colors border ${theme === 'dark' ? 'border-[#2d3640] hover:bg-[#252c33] text-red-400' : 'border-[#c8bea8] hover:bg-[#dfd7ca] text-red-700'}`}
+                className={`flex items-center justify-center gap-1.5 text-xs font-medium py-1.5 rounded-lg transition-colors border ${theme === 'dark' ? 'border-[#2d3640] hover:bg-[#20272e] text-slate-300' : 'border-[#c8bea8] hover:bg-white text-slate-700'}`}
                 title="PDF olarak yazdır veya kaydet"
               >
-                <Download size={13} /> PDF
+                <Download size={12} /> PDF
               </button>
             </div>
 
             <div className="grid grid-cols-2 gap-1.5 w-full">
               <button 
                 onClick={handleExportMarkdown}
-                className={`flex items-center justify-center gap-1.5 text-xs font-semibold py-2 rounded-lg transition-colors border ${theme === 'dark' ? 'border-[#2d3640] hover:bg-[#252c33] text-amber-400' : 'border-[#c8bea8] hover:bg-[#dfd7ca] text-amber-700'}`}
+                className={`flex items-center justify-center gap-1.5 text-xs font-medium py-1.5 rounded-lg transition-colors border ${theme === 'dark' ? 'border-[#2d3640] hover:bg-[#20272e] text-slate-300' : 'border-[#c8bea8] hover:bg-white text-slate-700'}`}
                 title="Markdown (.md) olarak indir"
               >
-                <Download size={13} /> MD (.md)
+                <Download size={12} /> Markdown
               </button>
               <button 
                 onClick={handleExportJSON}
-                className={`flex items-center justify-center gap-1.5 text-xs font-semibold py-2 rounded-lg transition-colors border ${theme === 'dark' ? 'border-[#2d3640] hover:bg-[#252c33] text-slate-300' : 'border-[#c8bea8] hover:bg-[#dfd7ca] text-slate-700'}`}
+                className={`flex items-center justify-center gap-1.5 text-xs font-medium py-1.5 rounded-lg transition-colors border ${theme === 'dark' ? 'border-[#2d3640] hover:bg-[#20272e] text-slate-300' : 'border-[#c8bea8] hover:bg-white text-slate-700'}`}
                 title="JSON yedek dosyası olarak indir"
               >
-                <Download size={13} /> JSON
+                <Download size={12} /> JSON
               </button>
             </div>
           </div>
@@ -604,28 +594,29 @@ export default function StoryBibleModal({ isOpen, onClose, theme }: StoryBibleMo
         <div className="flex-1 flex flex-col min-w-0 relative">
           <button 
             onClick={onClose}
-            className={`absolute top-4 right-4 p-1.5 rounded-lg z-10 transition-colors ${theme === 'dark' ? 'hover:bg-[#2d3640] text-slate-400 hover:text-white' : 'hover:bg-[#dfd7ca] text-slate-600 hover:text-black'}`}
+            className={`absolute top-3.5 right-3.5 p-1.5 rounded-lg z-10 transition-colors ${theme === 'dark' ? 'hover:bg-[#20272e] text-slate-400 hover:text-white' : 'hover:bg-[#dfd7ca] text-slate-600 hover:text-black'}`}
+            title="Kapat"
           >
             <X size={18} />
           </button>
 
           {activeEpisode ? (
             <div className="flex-1 flex flex-col h-full">
-              <div className={`p-6 border-b ${borderClass} flex items-end gap-6`}>
-                <div className="flex-1">
-                  <label className={`block text-xs font-semibold mb-1 opacity-60`}>Bölüm İsmi</label>
+              <div className={`px-6 py-4 border-b ${borderClass} flex items-end gap-4`}>
+                <div className="flex-1 min-w-0">
+                  <label className={`block text-[11px] font-semibold mb-1 opacity-50`}>Bölüm İsmi</label>
                   <input 
                     type="text" 
                     value={activeEpisode.episodeName}
                     onChange={(e) => updateActiveEpisode({ episodeName: e.target.value })}
-                    className={`w-full text-2xl font-bold bg-transparent border-0 border-b-2 border-transparent hover:border-slate-400/40 focus:border-[#6ba3e8] outline-none transition-colors px-0 py-1 ${textClass}`}
+                    className={`w-full text-xl font-bold bg-transparent border-0 outline-none transition-colors px-0 py-0.5 ${textClass}`}
                     placeholder="Bölüm Adı"
                   />
                 </div>
                 
                 <button 
                   onClick={handleSave}
-                  className={`px-5 py-2.5 rounded-xl flex items-center gap-2 font-bold transition-all shadow-sm active:scale-95 ${
+                  className={`px-4 py-2 rounded-lg flex items-center gap-1.5 text-xs font-bold transition-all shadow-xs active:scale-95 ${
                     isSaved 
                       ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30' 
                       : (theme === 'dark' 
@@ -633,15 +624,15 @@ export default function StoryBibleModal({ isOpen, onClose, theme }: StoryBibleMo
                         : 'bg-blue-700 text-white hover:bg-blue-800')
                   }`}
                 >
-                  {isSaved ? <Check size={18} /> : <Save size={18} />}
+                  {isSaved ? <Check size={15} /> : <Save size={15} />}
                   {isSaved ? 'Kaydedildi' : 'Kaydet'}
                 </button>
               </div>
 
               <div className={`flex-1 overflow-y-auto p-6 bg-transparent ${textClass} flex flex-col`}>
-                 <div className="flex items-center justify-between mb-3">
-                   <label className={`block text-sm font-semibold opacity-60`}>Bölüm Hikayesi & Olay Örgüsü</label>
-                   <span className="text-xs opacity-50 font-mono">
+                 <div className="flex items-center justify-between mb-2">
+                   <label className={`block text-xs font-semibold opacity-60`}>Bölüm Hikayesi & Olay Örgüsü</label>
+                   <span className="text-[11px] opacity-50 font-mono">
                      {(activeEpisode.storyContent || '').split(/\s+/).filter(Boolean).length} kelime
                    </span>
                  </div>
@@ -649,17 +640,17 @@ export default function StoryBibleModal({ isOpen, onClose, theme }: StoryBibleMo
                    value={activeEpisode.storyContent}
                    onChange={(e) => updateActiveEpisode({ storyContent: e.target.value })}
                    placeholder="Bu bölümün konusunu, ana dönüm noktalarını ve olay örgüsünü buraya yazın..."
-                   className={`w-full flex-1 min-h-[350px] p-4 rounded-xl resize-none outline-none border focus:border-[#6ba3e8] transition-colors text-base leading-relaxed font-sans ${inputBg} ${borderClass} ${textClass}`}
+                   className={`w-full flex-1 min-h-[300px] p-0 resize-none outline-none border-0 bg-transparent text-sm sm:text-base leading-relaxed font-sans ${textClass}`}
                  />
               </div>
             </div>
           ) : (
             <div className={`flex-1 flex flex-col items-center justify-center opacity-50 p-8 text-center`}>
-              <Book size={48} className="mb-4 opacity-50" />
-              <p className="text-sm font-medium">Görüntülenecek bir bölüm seçin veya yeni bir bölüm ekleyin.</p>
+              <Book size={44} className="mb-3 opacity-50" />
+              <p className="text-xs font-medium">Görüntülenecek bir bölüm seçin veya yeni bir bölüm ekleyin.</p>
               <button
                 onClick={handleAddEpisode}
-                className="mt-4 px-4 py-2 text-xs font-semibold rounded-xl bg-blue-600 text-white hover:bg-blue-500 transition-colors"
+                className="mt-3 px-3.5 py-1.5 text-xs font-semibold rounded-lg bg-blue-600 text-white hover:bg-blue-500 transition-colors"
               >
                 + 1. Bölümü Oluştur
               </button>

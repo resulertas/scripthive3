@@ -608,15 +608,6 @@ export default function TopBar({
 
             {activeMenu === 'tools' && (
               <div className={`absolute top-full left-0 mt-1 w-64 rounded-xl border py-1.5 z-50 ${menuBg}`}>
-                {/* AI Danışman */}
-                <button onClick={() => { if(onOpenAi) onOpenAi(); closeAll(); }} className={`w-full flex items-center justify-between px-4 py-2 text-left text-xs ${btnHover}`}>
-                  <div className="flex items-center gap-2">
-                    <Sparkles size={14} className={theme === 'dark' ? 'text-[#6ba3e8]' : 'text-blue-700'} />
-                    <span className="font-bold">Yapay Zeka Asistanı</span>
-                  </div>
-                  <span className={`text-[10px] px-1.5 py-0.5 rounded font-mono ${theme === 'dark' ? 'bg-[#6ba3e8]/15 text-[#6ba3e8]' : 'bg-blue-100 text-blue-800'}`}>AI</span>
-                </button>
-
                 {/* Ortak Yazar (Canlı Birlikte Yazım) */}
                 <button onClick={() => { if(onOpenCollaboration) onOpenCollaboration(); closeAll(); }} className={`w-full flex items-center justify-between px-4 py-2 text-left text-xs ${btnHover}`}>
                   <div className="flex items-center gap-2">

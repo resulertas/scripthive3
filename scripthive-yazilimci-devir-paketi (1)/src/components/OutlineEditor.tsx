@@ -268,13 +268,13 @@ export default function OutlineEditor({
   // Canonical Theme styles
   const isDark = theme === 'dark';
   const containerBg = isDark 
-    ? 'bg-[#151921] border-[#222a36] text-slate-200' 
-    : 'bg-[#f6f1e7] border-[#d8cdb9] text-slate-800';
+    ? 'bg-[#1a1f25] border-[#2d3640] text-slate-200' 
+    : 'bg-[#fcfbf8] border-[#c8bea8] text-slate-800';
   const headerBg = isDark 
-    ? 'bg-[#12161e] border-[#1e2530]' 
-    : 'bg-[#ede5d6] border-[#d8cdb9]';
-  const laneBg = isDark ? 'bg-[#0f131a]/80' : 'bg-white/80';
-  const tickBorder = isDark ? 'border-slate-800' : 'border-slate-200';
+    ? 'bg-[#15191f] border-[#2d3640]' 
+    : 'bg-[#e8e0d5] border-[#c8bea8]';
+  const laneBg = isDark ? 'bg-[#14181f]/90' : 'bg-[#f8f5ee]';
+  const tickBorder = isDark ? 'border-[#2d3640]' : 'border-[#dcd4c4]';
 
   // =========================================================================
   // VERTICAL OUTLINE EDITOR (DİKEY ŞABLON & SAHNE AKIŞ PANELİ)
@@ -317,8 +317,8 @@ export default function OutlineEditor({
               onClick={handleToggle}
               className={`px-2 py-1 rounded-lg border text-[10px] font-bold flex items-center gap-1 transition-all ${
                 isDark 
-                  ? 'bg-[#1e2532] hover:bg-[#283243] border-[#2d3848] text-slate-200' 
-                  : 'bg-white hover:bg-slate-50 border-[#cfc4b0] text-slate-800 shadow-xs'
+                  ? 'bg-[#20272e] hover:bg-[#28323c] border-[#2d3640] text-slate-200' 
+                  : 'bg-white hover:bg-slate-50 border-[#c8bea8] text-slate-800 shadow-xs'
               }`}
               title="Yatay Zaman Şeridi Cetveli Moduna Geç"
             >
@@ -329,7 +329,7 @@ export default function OutlineEditor({
             <button
               onClick={onClose}
               className={`p-1 rounded-lg transition-colors ${
-                isDark ? 'hover:bg-slate-800 text-slate-400 hover:text-slate-100' : 'hover:bg-slate-200 text-slate-600 hover:text-black'
+                isDark ? 'hover:bg-slate-800 text-slate-400 hover:text-slate-100' : 'hover:bg-[#dfd7ca] text-slate-600 hover:text-black'
               }`}
               title="Kapat"
             >
@@ -339,7 +339,7 @@ export default function OutlineEditor({
         </div>
 
         {/* SEARCH & FILTER CONTROLS */}
-        <div className={`p-3 border-b space-y-2 text-xs ${isDark ? 'bg-[#181d26] border-[#222a36]' : 'bg-[#f0e8dc] border-[#d8cdb9]'}`}>
+        <div className={`p-3 border-b space-y-2 text-xs ${isDark ? 'bg-[#171c22] border-[#2d3640]' : 'bg-[#f4efe4] border-[#c8bea8]'}`}>
           {/* Search bar */}
           <div className="relative">
             <Search size={13} className="absolute left-2.5 top-1/2 -translate-y-1/2 opacity-50" />
@@ -350,8 +350,8 @@ export default function OutlineEditor({
               placeholder="Sahne veya Beat ara..."
               className={`w-full pl-8 pr-3 py-1.5 rounded-lg border text-xs outline-none transition-all ${
                 isDark 
-                  ? 'bg-[#12161e] border-[#2d3848] text-slate-100 focus:border-[#6ba3e8]' 
-                  : 'bg-white border-[#cfc4b0] text-slate-900 focus:border-blue-700'
+                  ? 'bg-[#1a1f25] border-[#2d3640] text-slate-100 focus:border-[#6ba3e8]' 
+                  : 'bg-white border-[#c8bea8] text-slate-900 focus:border-blue-700'
               }`}
             />
             {searchQuery && (
@@ -371,7 +371,7 @@ export default function OutlineEditor({
                 onClick={() => setVerticalFilter('all')}
                 className={`px-2 py-0.5 rounded-md text-[10px] font-bold transition-all ${
                   verticalFilter === 'all'
-                    ? (isDark ? 'bg-[#6ba3e8] text-slate-950' : 'bg-blue-700 text-white')
+                    ? (isDark ? 'bg-[#6ba3e8] text-slate-950 font-bold' : 'bg-blue-700 text-white font-bold')
                     : 'opacity-60 hover:opacity-100'
                 }`}
               >
@@ -381,7 +381,7 @@ export default function OutlineEditor({
                 onClick={() => setVerticalFilter('scenes')}
                 className={`px-2 py-0.5 rounded-md text-[10px] font-bold transition-all ${
                   verticalFilter === 'scenes'
-                    ? (isDark ? 'bg-[#6ba3e8] text-slate-950' : 'bg-blue-700 text-white')
+                    ? (isDark ? 'bg-[#6ba3e8] text-slate-950 font-bold' : 'bg-blue-700 text-white font-bold')
                     : 'opacity-60 hover:opacity-100'
                 }`}
               >
@@ -391,7 +391,7 @@ export default function OutlineEditor({
                 onClick={() => setVerticalFilter('beats')}
                 className={`px-2 py-0.5 rounded-md text-[10px] font-bold transition-all ${
                   verticalFilter === 'beats'
-                    ? (isDark ? 'bg-[#6ba3e8] text-slate-950' : 'bg-blue-700 text-white')
+                    ? (isDark ? 'bg-[#6ba3e8] text-slate-950 font-bold' : 'bg-blue-700 text-white font-bold')
                     : 'opacity-60 hover:opacity-100'
                 }`}
               >
@@ -406,40 +406,36 @@ export default function OutlineEditor({
         </div>
 
         {/* SCROLLABLE VERTICAL TIMELINE / TREE */}
-        <div className="flex-1 overflow-y-auto p-3 space-y-3 custom-scrollbar">
+        <div className="flex-1 overflow-y-auto divide-y divide-[#2d3640]/40 dark:divide-[#2d3640]/50 divide-dashed custom-scrollbar">
           {filteredActSections.map((sec, i) => {
             const isActCollapsed = !!collapsedActs[sec.act.name];
-            const hasMatches = (verticalFilter === 'all' || verticalFilter === 'scenes' ? sec.scenes.length > 0 : false) ||
-                               (verticalFilter === 'all' || verticalFilter === 'beats' ? sec.beats.length > 0 : false);
 
             return (
               <div 
                 key={sec.act.name}
-                className={`rounded-xl border overflow-hidden transition-all shadow-xs ${
-                  isDark ? 'bg-[#1a202a] border-[#253040]' : 'bg-white border-[#d8cdb9]'
-                }`}
+                className="transition-colors"
               >
                 {/* ACT SECTION ACCORDION HEADER */}
                 <button
                   type="button"
                   onClick={() => toggleActCollapse(sec.act.name)}
-                  className={`w-full px-3 py-2 flex items-center justify-between gap-2 text-left font-mono text-xs border-b transition-colors ${
+                  className={`w-full px-3.5 py-2.5 flex items-center justify-between gap-2 text-left font-mono text-xs transition-colors ${
                     isDark 
-                      ? 'bg-[#202735] hover:bg-[#252f40] border-[#253040] text-slate-100' 
-                      : 'bg-[#ede5d6] hover:bg-[#e4dcce] border-[#d8cdb9] text-slate-900'
+                      ? 'bg-[#181d24] hover:bg-[#1e242d] text-slate-100' 
+                      : 'bg-[#ece4d6] hover:bg-[#e4dcce] text-slate-900'
                   }`}
                 >
                   <div className="flex items-center gap-2 truncate">
                     <span className={`w-2 h-2 rounded-full shrink-0 ${
                       i === 0 ? 'bg-blue-500' : i === 1 ? 'bg-emerald-500' : i === 2 ? 'bg-amber-500' : 'bg-purple-500'
                     }`} />
-                    <span className="font-bold truncate">{sec.act.name}</span>
+                    <span className="font-bold truncate text-[11px] uppercase tracking-wider">{sec.act.name}</span>
                   </div>
 
                   <div className="flex items-center gap-2 shrink-0 text-[10px] opacity-75">
                     <span className="font-mono">sf. {sec.startPage}-{sec.endPage}</span>
                     <span className={`px-1.5 py-0.2 rounded font-mono font-bold ${
-                      isDark ? 'bg-black/20 text-slate-300' : 'bg-black/5 text-slate-700'
+                      isDark ? 'bg-black/25 text-slate-300' : 'bg-black/5 text-slate-700'
                     }`}>
                       {sec.scenes.length} Sahne
                     </span>
@@ -449,11 +445,11 @@ export default function OutlineEditor({
 
                 {/* ACT CONTENT BODY */}
                 {!isActCollapsed && (
-                  <div className="p-2.5 space-y-2.5">
+                  <div className="p-2 space-y-2">
                     {/* 1. BEATS IN THIS ACT */}
                     {(verticalFilter === 'all' || verticalFilter === 'beats') && sec.beats.length > 0 && (
-                      <div className="space-y-1.5">
-                        <div className="text-[10px] font-bold uppercase tracking-wider opacity-60 flex items-center gap-1 font-mono px-1">
+                      <div className="space-y-1">
+                        <div className="text-[10px] font-bold uppercase tracking-wider opacity-60 flex items-center gap-1 font-mono px-2 pt-1">
                           <Bookmark size={11} className={isDark ? 'text-[#6ba3e8]' : 'text-blue-700'} />
                           <span>Hikaye Beat'leri ({sec.beats.length})</span>
                         </div>
@@ -467,10 +463,10 @@ export default function OutlineEditor({
                               <div
                                 key={beat.id}
                                 onClick={onOpenStoryBeats}
-                                className={`p-2 rounded-lg border text-xs cursor-pointer transition-all hover:scale-[1.01] ${
+                                className={`p-2 rounded-lg text-xs cursor-pointer transition-all border ${
                                   isAnswered
-                                    ? (isDark ? 'bg-[#182635] border-[#2b425b] text-slate-100' : 'bg-blue-50/70 border-blue-200 text-blue-950')
-                                    : (isDark ? 'bg-[#12161e] border-[#1e2632] text-slate-300 hover:border-slate-500' : 'bg-[#faf7f2] border-[#e8dfd1] text-slate-800 hover:border-slate-400')
+                                    ? (isDark ? 'bg-[#202834] border-[#2b3a4e] text-slate-100' : 'bg-blue-50/60 border-blue-200 text-blue-950')
+                                    : (isDark ? 'bg-[#15191f] border-transparent hover:border-[#2d3640] text-slate-300' : 'bg-white border-transparent hover:border-[#c8bea8] text-slate-800')
                                 }`}
                               >
                                 <div className="flex items-center justify-between gap-1.5 mb-1">
@@ -478,7 +474,7 @@ export default function OutlineEditor({
                                     {isAnswered ? (
                                       <CheckCircle2 size={12} className="text-emerald-500 shrink-0" />
                                     ) : (
-                                      <div className="w-2.5 h-2.5 rounded-full border border-current opacity-40 shrink-0" />
+                                      <div className="w-2 h-2 rounded-full border border-current opacity-40 shrink-0" />
                                     )}
                                     <span className="font-bold text-[11px] truncate">
                                       {beat.name}
@@ -489,13 +485,13 @@ export default function OutlineEditor({
                                   </span>
                                 </div>
 
-                                <p className="text-[10px] opacity-70 line-clamp-2 leading-tight">
+                                <p className="text-[10px] opacity-70 line-clamp-2 leading-tight pl-3.5">
                                   {beat.description}
                                 </p>
 
                                 {beatAnswers[beat.id] && (
-                                  <div className={`mt-1.5 p-1.5 rounded text-[10px] font-mono leading-tight ${
-                                    isDark ? 'bg-black/30 text-emerald-300' : 'bg-white text-emerald-900 border border-emerald-200'
+                                  <div className={`mt-1.5 ml-3.5 p-1.5 rounded text-[10px] font-mono leading-tight ${
+                                    isDark ? 'bg-black/25 text-emerald-300' : 'bg-white/80 text-emerald-900 border border-emerald-200/60'
                                   }`}>
                                     <span className="font-bold">Not: </span>
                                     <span className="line-clamp-2">{beatAnswers[beat.id]}</span>
@@ -510,18 +506,18 @@ export default function OutlineEditor({
 
                     {/* 2. SCENES IN THIS ACT */}
                     {(verticalFilter === 'all' || verticalFilter === 'scenes') && (
-                      <div className="space-y-1.5 pt-1">
-                        <div className="text-[10px] font-bold uppercase tracking-wider opacity-60 flex items-center gap-1 font-mono px-1">
+                      <div className="space-y-1 pt-1">
+                        <div className="text-[10px] font-bold uppercase tracking-wider opacity-60 flex items-center gap-1 font-mono px-2">
                           <Film size={11} className={isDark ? 'text-[#6ba3e8]' : 'text-blue-700'} />
-                          <span>Bu Kısımdaki Sahneler ({sec.scenes.length})</span>
+                          <span>Sahneler ({sec.scenes.length})</span>
                         </div>
 
                         {sec.scenes.length === 0 ? (
-                          <div className="p-3 text-center text-[10px] font-mono opacity-40 border border-dashed rounded-lg border-inherit">
+                          <div className="p-2.5 text-center text-[10px] font-mono opacity-40">
                             Bu perde aralığına henüz sahne eklenmedi.
                           </div>
                         ) : (
-                          <div className="space-y-1">
+                          <div className="space-y-0.5">
                             {sec.scenes.map((scene) => {
                               const isCurrent = focusedId === scene.element.id;
 
@@ -529,17 +525,17 @@ export default function OutlineEditor({
                                 <div
                                   key={scene.element.id}
                                   onClick={() => handleJumpToScene(scene.element.id)}
-                                  className={`p-2 rounded-lg border cursor-pointer transition-all hover:scale-[1.01] ${
+                                  className={`p-2 rounded-lg cursor-pointer transition-all border ${
                                     isCurrent
                                       ? (isDark 
-                                          ? 'bg-[#223145] border-[#6ba3e8] ring-1 ring-[#6ba3e8] text-white shadow-md' 
-                                          : 'bg-blue-50 border-blue-600 ring-1 ring-blue-600 text-slate-950 shadow-md')
+                                          ? 'bg-[#253040] border-[#6ba3e8] text-white shadow-xs' 
+                                          : 'bg-blue-50 border-blue-600 text-slate-950 shadow-xs')
                                       : (isDark 
-                                          ? 'bg-[#141922] hover:bg-[#1a212d] border-[#222c3b] text-slate-200' 
-                                          : 'bg-[#fcfaf7] hover:bg-[#f2ece1] border-[#e2d8c7] text-slate-900')
+                                          ? 'bg-[#15191f] hover:bg-[#20272e] border-transparent text-slate-300' 
+                                          : 'bg-white hover:bg-[#ede5d6] border-transparent text-slate-900')
                                   }`}
                                 >
-                                  <div className="flex items-center justify-between gap-1.5 mb-1">
+                                  <div className="flex items-center justify-between gap-1.5 mb-0.5">
                                     <div className="flex items-center gap-1.5 truncate">
                                       {scene.element.colorTag && (
                                         <div 
@@ -563,13 +559,13 @@ export default function OutlineEditor({
                                   </div>
 
                                   {scene.snippet && (
-                                    <p className="text-[10px] opacity-70 italic line-clamp-1 font-mono pl-1 border-l-2 border-inherit">
+                                    <p className="text-[10px] opacity-70 italic line-clamp-1 font-mono pl-2 border-l-2 border-inherit">
                                       "{scene.snippet}"
                                     </p>
                                   )}
 
                                   {isCurrent && (
-                                    <div className="mt-1 flex items-center gap-1 text-[9px] font-bold text-amber-500 dark:text-amber-400">
+                                    <div className="mt-1 flex items-center gap-1 text-[9px] font-bold text-amber-500 dark:text-amber-400 pl-2">
                                       <div className="w-1.5 h-1.5 rounded-full bg-amber-500 animate-pulse" />
                                       <span>Editörde Açık Sahne</span>
                                     </div>
@@ -760,8 +756,8 @@ export default function OutlineEditor({
                 
                 // Calm alternate background shades
                 const actBg = isDark 
-                  ? (i % 2 === 0 ? 'bg-[#202836] text-slate-200' : 'bg-[#1b222f] text-slate-300')
-                  : (i % 2 === 0 ? 'bg-[#e2d8c5] text-slate-800' : 'bg-[#d8cdb9] text-slate-900');
+                  ? (i % 2 === 0 ? 'bg-[#20272e] text-slate-200' : 'bg-[#1a1f25] text-slate-300')
+                  : (i % 2 === 0 ? 'bg-[#e8e0d5] text-slate-800' : 'bg-[#dfd7ca] text-slate-900');
 
                 return (
                   <div
@@ -801,7 +797,7 @@ export default function OutlineEditor({
                     className={`absolute -translate-x-1/2 cursor-pointer flex items-center gap-0.5 px-1.5 py-0.5 rounded-full border text-[9px] font-mono font-bold transition-all hover:scale-110 shadow-xs z-10 ${
                       isAnswered
                         ? (isDark ? 'bg-[#6ba3e8] text-slate-950 border-[#6ba3e8]' : 'bg-blue-700 text-white border-blue-700')
-                        : (isDark ? 'bg-slate-800 text-slate-300 border-slate-600 hover:border-slate-400' : 'bg-white text-slate-700 border-[#c8bea8] hover:border-slate-500')
+                        : (isDark ? 'bg-[#20272e] text-slate-300 border-[#2d3640] hover:border-slate-500' : 'bg-white text-slate-700 border-[#c8bea8] hover:border-slate-500')
                     }`}
                   >
                     {isAnswered ? <CheckCircle2 size={10} /> : <span className="opacity-70">{i + 1}</span>}
@@ -849,7 +845,7 @@ export default function OutlineEditor({
                       className={`absolute -translate-x-1/2 px-1.5 py-0.5 rounded text-[9px] font-mono font-bold flex items-center gap-1 border transition-all hover:scale-110 shadow-xs z-10 truncate max-w-[110px] ${
                         isCurrent
                           ? (isDark ? 'bg-amber-400 text-slate-950 border-amber-300 ring-2 ring-amber-400/40' : 'bg-amber-500 text-white border-amber-600 ring-2 ring-amber-500/30')
-                          : (isDark ? 'bg-[#252d3a] hover:bg-[#2d3848] text-slate-200 border-[#364254]' : 'bg-[#ede5d6] hover:bg-[#dfd7ca] text-slate-900 border-[#c8bea8]')
+                          : (isDark ? 'bg-[#20272e] hover:bg-[#28323c] text-slate-200 border-[#2d3640]' : 'bg-[#e8e0d5] hover:bg-[#dfd7ca] text-slate-900 border-[#c8bea8]')
                       }`}
                       title={`${item.sceneNumber}. ${item.cleanHeading} (~${item.approxPage}. sf)`}
                     >
@@ -905,7 +901,7 @@ export default function OutlineEditor({
             top: hoveredBeat.y + 8 
           }}
           className={`fixed z-50 w-72 p-3 rounded-xl shadow-2xl border text-xs pointer-events-none animate-in fade-in zoom-in-95 duration-100 ${
-            isDark ? 'bg-[#1c222c] border-[#2f3b4c] text-slate-100' : 'bg-white border-[#cfc4b0] text-slate-900'
+            isDark ? 'bg-[#20272e] border-[#2d3640] text-slate-100' : 'bg-[#FFFFF0] border-[#c8bea8] text-slate-900'
           }`}
         >
           <div className="flex items-center justify-between gap-2 mb-1.5 pb-1 border-b border-inherit">
@@ -921,7 +917,7 @@ export default function OutlineEditor({
           </p>
           {beatAnswers[hoveredBeat.beat.id] ? (
             <div className={`p-2 rounded-lg text-[10px] font-mono leading-snug ${
-              isDark ? 'bg-black/30 border border-slate-700/50' : 'bg-slate-50 border border-slate-200'
+              isDark ? 'bg-black/25 border border-slate-700/50' : 'bg-slate-50 border border-slate-200'
             }`}>
               <span className="font-bold text-emerald-400 block mb-0.5">✓ Yazarın Notu:</span>
               <p className="opacity-90 line-clamp-3">{beatAnswers[hoveredBeat.beat.id]}</p>
@@ -944,7 +940,7 @@ export default function OutlineEditor({
             top: hoveredScene.y + 8 
           }}
           className={`fixed z-50 w-64 p-3 rounded-xl shadow-2xl border text-xs pointer-events-none animate-in fade-in zoom-in-95 duration-100 ${
-            isDark ? 'bg-[#1c222c] border-[#2f3b4c] text-slate-100' : 'bg-white border-[#cfc4b0] text-slate-900'
+            isDark ? 'bg-[#20272e] border-[#2d3640] text-slate-100' : 'bg-[#FFFFF0] border-[#c8bea8] text-slate-900'
           }`}
         >
           <div className="flex items-center justify-between gap-2 mb-1 pb-1 border-b border-inherit">
